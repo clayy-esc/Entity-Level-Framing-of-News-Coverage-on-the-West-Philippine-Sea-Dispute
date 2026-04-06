@@ -1,12 +1,13 @@
+import { Link } from "react-router-dom";
 import mediaScopeLight from "../assets/media-scope-ph-lm.svg";
 import mediaScopeDark from "../assets/media-scope-ph-dm.svg";
 
 function Navbar() {
   const pages = [
-    { name: "Coverage", icon: "bar_chart_4_bars", link: "#" },
-    { name: "About", icon: "error", link: "#" },
-    { name: "Methodology", icon: "docs", link: "#" },
-    { name: "Report", icon: "list_alt", link: "#" },
+    { name: "Coverage", icon: "bar_chart_4_bars", link: "/" },
+    { name: "About", icon: "error", link: "/about" },
+    { name: "Methodology", icon: "docs", link: "/methodology" },
+    { name: "Report", icon: "list_alt", link: "/report" },
   ];
 
   return (
@@ -23,13 +24,13 @@ function Navbar() {
         <ul className="items-left flex flex-col gap-1 md:flex-row md:items-center">
           {pages.map((page) => (
             <li key={page.name}>
-              <a
+              <Link
                 className="flex flex-row rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700"
-                href={page.link}
+                to={page.link}
               >
                 <span className="material-symbols-outlined">{page.icon}</span>
                 <p>{page.name}</p>
-              </a>
+              </Link>
             </li>
           ))}
           <li className="flex cursor-pointer flex-row rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700">

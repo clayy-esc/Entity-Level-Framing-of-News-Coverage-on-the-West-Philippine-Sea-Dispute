@@ -1,13 +1,20 @@
-import { useState } from "react";
-import "./App.css";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
+import Coverage from "./pages/Coverage.jsx";
+import About from "./pages/About.jsx";
+import Methodology from "./pages/Methodology.jsx";
+import Report from "./pages/Report.jsx";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <div className="h-screen bg-gray-100">
+    <div>
       <Navbar />
+      <Routes>
+        <Route path="/" element={<Coverage />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/methodology" element={<Methodology />} />
+        <Route path="/report" element={<Report />} />
+      </Routes>
     </div>
   );
 }
