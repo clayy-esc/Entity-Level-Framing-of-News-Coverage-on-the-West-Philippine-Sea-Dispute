@@ -25,16 +25,20 @@ function Navbar() {
           {pages.map((page) => (
             <li key={page.name}>
               <Link
-                className="flex flex-row rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700"
+                className="flex flex-row items-center rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700"
                 to={page.link}
               >
-                <span className="material-symbols-outlined">{page.icon}</span>
+                <span className="material-symbols-outlined text-xl!">
+                  {page.icon}
+                </span>
                 <p>{page.name}</p>
               </Link>
             </li>
           ))}
-          <li className="flex cursor-pointer flex-row rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700">
-            <span className="material-symbols-outlined">dark_mode</span>
+          <li className="flex cursor-pointer flex-row items-center rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700">
+            <span className="material-symbols-outlined text-xl!">
+              dark_mode
+            </span>
           </li>
         </ul>
       </nav>
