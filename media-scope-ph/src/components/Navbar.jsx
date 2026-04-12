@@ -32,7 +32,7 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="items-left flex h-16 w-full flex-col justify-around bg-white md:flex-row md:items-center">
+    <header className="flex h-16 w-full flex-col items-start justify-around bg-white md:flex-row md:items-center">
       <div className="flex flex-row items-center gap-1">
         <img
           className="size-20"
@@ -42,7 +42,7 @@ const Navbar = () => {
         <h1>Media Scope PH</h1>
       </div>
       <nav>
-        <ul className="items-left flex flex-col gap-1 md:flex-row md:items-center">
+        <ul className="flex flex-col items-start gap-1 md:flex-row md:items-center">
           {pages.map((page) => (
             <li key={page.id}>
               <Link
