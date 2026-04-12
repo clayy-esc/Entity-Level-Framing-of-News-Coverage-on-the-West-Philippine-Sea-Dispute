@@ -1,6 +1,10 @@
-const Footer = () => {
+const Footer = ({ darkMode }) => {
   return (
-    <footer className="w-full bg-white py-6 text-center text-xs text-slate-500 dark:bg-slate-900">
+    <footer
+      className={`w-full py-6 text-center text-xs ${
+        darkMode ? "bg-slate-900 text-slate-300" : "bg-white text-slate-500"
+      }`}
+    >
       <p>
         &copy; 2026 Media Scope PH | Philippine News Sentiment Analysis System
       </p>
