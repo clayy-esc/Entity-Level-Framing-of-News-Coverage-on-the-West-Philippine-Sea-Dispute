@@ -1,13 +1,34 @@
 import { Link } from "react-router-dom";
+import { BarChart4, AlertCircle, FileText, ListTodo, Moon } from "lucide-react";
 import mediaScopeLight from "../assets/media-scope-ph-lm.svg";
 import mediaScopeDark from "../assets/media-scope-ph-dm.svg";
 
-function Navbar() {
+const Navbar = () => {
   const pages = [
-    { name: "Coverage", icon: "bar_chart_4_bars", link: "/" },
-    { name: "About", icon: "error", link: "/about" },
-    { name: "Methodology", icon: "docs", link: "/methodology" },
-    { name: "Report", icon: "list_alt", link: "/report" },
+    {
+      id: "coverage",
+      name: "Coverage",
+      icon: <BarChart4 size={16} />,
+      link: "/",
+    },
+    {
+      id: "about",
+      name: "About",
+      icon: <AlertCircle size={16} />,
+      link: "/about",
+    },
+    {
+      id: "methodology",
+      name: "Methodology",
+      icon: <FileText size={16} />,
+      link: "/methodology",
+    },
+    {
+      id: "report",
+      name: "Report",
+      icon: <ListTodo size={16} />,
+      link: "/report",
+    },
   ];
 
   return (
@@ -23,27 +44,24 @@ function Navbar() {
       <nav>
         <ul className="items-left flex flex-col gap-1 md:flex-row md:items-center">
           {pages.map((page) => (
-            <li key={page.name}>
+            <li key={page.id}>
               <Link
-                className="flex flex-row items-center rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700"
+                className="flex flex-row items-center gap-1 rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700"
                 to={page.link}
               >
-                <span className="material-symbols-outlined text-xl!">
-                  {page.icon}
-                </span>
+                {page.icon}
                 <p>{page.name}</p>
               </Link>
             </li>
           ))}
-          <li className="flex cursor-pointer flex-row items-center rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700">
-            <span className="material-symbols-outlined text-xl!">
-              dark_mode
-            </span>
+          <div className="mx-2 h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
+          <li className="cursor-pointer rounded-full p-4 hover:bg-blue-50 hover:text-blue-700">
+            <Moon size={16} />
           </li>
         </ul>
       </nav>
     </header>
   );
-}
+};
 
 export default Navbar;

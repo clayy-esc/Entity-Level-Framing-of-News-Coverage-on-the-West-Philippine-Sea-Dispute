@@ -5,7 +5,7 @@ import About from "./pages/About.jsx";
 import Methodology from "./pages/Methodology.jsx";
 import Report from "./pages/Report.jsx";
 
-function App() {
+const App = () => {
   return (
     <div>
       <Navbar />
@@ -17,6 +17,6 @@ function App() {
       </Routes>
     </div>
   );
-}
+};
 
 export default App;
