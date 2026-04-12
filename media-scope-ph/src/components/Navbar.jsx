@@ -32,7 +32,7 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="items-left flex h-16 flex-col justify-around bg-white md:flex-row md:items-center">
+    <header className="items-left flex h-16 w-full flex-col justify-around bg-white md:flex-row md:items-center">
       <div className="flex flex-row items-center gap-1">
         <img
           className="size-20"
@@ -54,7 +54,7 @@ const Navbar = () => {
               </Link>
             </li>
           ))}
-          <div className="mx-2 h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
+          <div className="mx-2 h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
           <li className="cursor-pointer rounded-full p-4 hover:bg-blue-50 hover:text-blue-700">
             <Moon size={16} />
           </li>

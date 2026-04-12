@@ -4,6 +4,7 @@ import Coverage from "./pages/Coverage.jsx";
 import About from "./pages/About.jsx";
 import Methodology from "./pages/Methodology.jsx";
 import Report from "./pages/Report.jsx";
+import Footer from "./components/Footer.jsx";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/methodology" element={<Methodology />} />
         <Route path="/report" element={<Report />} />
       </Routes>
+      <Footer />
     </div>
   );
 };
