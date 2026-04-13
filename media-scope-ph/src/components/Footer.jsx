@@ -1,6 +1,6 @@
 const Footer = () => {
   return (
-    <footer className="w-full bg-white py-6 text-center text-xs text-slate-500 dark:bg-slate-900 dark:text-slate-300">
+    <footer className="w-full border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
       <p>
         &copy; 2026 Media Scope PH | Philippine News Sentiment Analysis System
       </p>
