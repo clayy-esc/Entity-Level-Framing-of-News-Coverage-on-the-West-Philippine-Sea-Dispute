@@ -1,6 +1,8 @@
 const Report = () => {
   return (
-    <div className="h-screen bg-gray-100 dark:bg-slate-950">Report Page</div>
+    <main className="flex-1 bg-gray-100 dark:bg-slate-950">
+      <p>Hello</p>
+    </main>
   );
 };
 

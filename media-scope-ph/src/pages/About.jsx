@@ -1,6 +1,6 @@
 const About = () => {
   return (
-    <main className="h-auto bg-gray-100 dark:bg-slate-950">
+    <main className="flex-1 bg-gray-100 dark:bg-slate-950">
       <div className="flex flex-col items-center justify-center">
         <div className="w-2/3">
           <h1>About the Project</h1>
