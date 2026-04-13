@@ -31,25 +31,18 @@ const App = () => {
   }, [darkMode]);
 
   return (
-    <div
-      className={`min-h-screen ${
-        darkMode ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <Navbar
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
       />
       <Routes>
-        <Route path="/" element={<Coverage darkMode={darkMode} />} />
-        <Route path="/about" element={<About darkMode={darkMode} />} />
-        <Route
-          path="/methodology"
-          element={<Methodology darkMode={darkMode} />}
-        />
-        <Route path="/report" element={<Report darkMode={darkMode} />} />
+        <Route path="/" element={<Coverage />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/methodology" element={<Methodology />} />
+        <Route path="/report" element={<Report />} />
       </Routes>
-      <Footer darkMode={darkMode} />
+      <Footer />
     </div>
   );
 };

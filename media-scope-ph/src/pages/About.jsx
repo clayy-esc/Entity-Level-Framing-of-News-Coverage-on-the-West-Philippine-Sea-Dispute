@@ -1,16 +1,12 @@
-const About = ({ darkMode }) => {
-  const sectionClassName = darkMode
-    ? "m-2 w-5/6 rounded-xl bg-slate-900 p-8 text-justify shadow-md md:w-2/3"
-    : "m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3";
-
+const About = () => {
   return (
-    <main className={`h-auto ${darkMode ? "bg-slate-950" : "bg-gray-100"}`}>
+    <main className="h-auto bg-gray-100 dark:bg-slate-950">
       <div className="flex flex-col items-center justify-center">
         <div className="w-2/3">
           <h1>About the Project</h1>
           <p>Understanding media sentiment across Philippine news outlets</p>
         </div>
-        <section className={sectionClassName}>
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
           <h2>Project Purpose</h2>
           <p>
             This system provides entity-level sentiment analysis across multiple
@@ -24,7 +20,7 @@ const About = ({ darkMode }) => {
             reporting patterns, and the evolution of public discourse over time.
           </p>
         </section>
-        <section className={sectionClassName}>
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
           <h2>Why Entity-Level Sentiment Analysis</h2>
           <p>
             Traditional sentiment analysis examines overall article tone, but
@@ -43,7 +39,7 @@ const About = ({ darkMode }) => {
             cover key national issues and personalities.
           </p>
         </section>
-        <section className={sectionClassName}>
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
           <h2>System Workflow</h2>
           <p>
             The system processes news articles through a multi-stage pipeline to
@@ -57,7 +53,7 @@ const About = ({ darkMode }) => {
             <li>Visual Outputs</li>
           </ul>
         </section>
-        <section className={sectionClassName}>
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
           <h2>Project Team</h2>
           <p>Hello, this is the about section.</p>
         </section>

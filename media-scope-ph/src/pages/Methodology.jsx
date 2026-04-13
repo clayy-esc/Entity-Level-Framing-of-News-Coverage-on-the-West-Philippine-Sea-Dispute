@@ -1,6 +1,6 @@
-const Methodology = ({ darkMode }) => {
+const Methodology = () => {
   return (
-    <div className={`h-screen ${darkMode ? "bg-slate-950" : "bg-gray-100"}`}>
+    <div className="h-screen bg-gray-100 dark:bg-slate-950">
       Methodology Page
     </div>
   );

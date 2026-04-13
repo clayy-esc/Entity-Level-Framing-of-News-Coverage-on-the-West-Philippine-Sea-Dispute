@@ -38,22 +38,8 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
     },
   ];
 
-  const headerClassName = darkMode
-    ? "border-slate-800 bg-slate-900 text-slate-100"
-    : "border-slate-200 bg-white text-slate-900";
-
-  const linkClassName = darkMode
-    ? "flex flex-row items-center gap-1 rounded-xl px-4 py-2 hover:bg-slate-800 hover:text-blue-300"
-    : "flex flex-row items-center gap-1 rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700";
-
-  const toggleClassName = darkMode
-    ? "cursor-pointer rounded-full p-4 hover:bg-slate-800 hover:text-blue-300"
-    : "cursor-pointer rounded-full p-4 hover:bg-blue-50 hover:text-blue-700";
-
   return (
-    <header
-      className={`flex h-16 w-full flex-col items-start justify-around border-b md:flex-row md:items-center ${headerClassName}`}
-    >
+    <header className="flex h-16 w-full flex-col items-start justify-around border-b border-slate-200 bg-white text-slate-900 md:flex-row md:items-center dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
       <div className="flex flex-row items-center gap-1">
         <img
           className="size-20"
@@ -66,23 +52,21 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
         <ul className="flex flex-col items-start gap-1 md:flex-row md:items-center">
           {pages.map((page) => (
             <li key={page.id}>
-              <Link className={linkClassName} to={page.link}>
+              <Link
+                className="flex flex-row items-center gap-1 rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-slate-800 dark:hover:text-blue-300"
+                to={page.link}
+              >
                 {page.icon}
                 <p>{page.name}</p>
               </Link>
             </li>
           ))}
-          <div
-            className={`mx-2 h-6 w-px ${darkMode ? "bg-slate-700" : "bg-slate-300"}`}
-          ></div>
+          <div className="mx-2 h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
           <li>
             <button
               type="button"
               onClick={onToggleDarkMode}
-              className={toggleClassName}
-              aria-label={
-                darkMode ? "Switch to light mode" : "Switch to dark mode"
-              }
+              className="cursor-pointer rounded-full p-4 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-slate-800 dark:hover:text-blue-300"
             >
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
