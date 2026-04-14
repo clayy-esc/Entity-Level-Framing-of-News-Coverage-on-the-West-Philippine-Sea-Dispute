@@ -1,6 +1,6 @@
-const Coverage = () => {
-  const error = true;
+const error = true;
 
+const Coverage = () => {
   return (
     <main className="flex-1 bg-gray-100 dark:bg-slate-950">
       About Page

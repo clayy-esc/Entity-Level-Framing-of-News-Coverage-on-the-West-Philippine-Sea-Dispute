@@ -1,3 +1,5 @@
+import members from "../content/members.js";
+
 const About = () => {
   return (
     <main className="flex-1 bg-gray-100 dark:bg-slate-950">
@@ -6,7 +8,7 @@ const About = () => {
           <h1>About the Project</h1>
           <p>Understanding media sentiment across Philippine news outlets</p>
         </div>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <h2>Project Purpose</h2>
           <p>
             This system provides entity-level sentiment analysis across multiple
@@ -20,7 +22,7 @@ const About = () => {
             reporting patterns, and the evolution of public discourse over time.
           </p>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <h2>Why Entity-Level Sentiment Analysis</h2>
           <p>
             Traditional sentiment analysis examines overall article tone, but
@@ -39,7 +41,7 @@ const About = () => {
             cover key national issues and personalities.
           </p>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <h2>System Workflow</h2>
           <p>
             The system processes news articles through a multi-stage pipeline to
@@ -53,9 +55,19 @@ const About = () => {
             <li>Visual Outputs</li>
           </ul>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-2/3 dark:bg-slate-900">
-          <h2>Project Team</h2>
-          <p>Hello, this is the about section.</p>
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
+          <h2 className="mb-4">Project Team</h2>
+          <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 md:gap-6">
+            {members.map((member, index) => (
+              <div
+                key={index}
+                className="mx-8 border-l-2 border-slate-300 pl-4 dark:border-slate-700"
+              >
+                <h3>{member.name}</h3>
+                <p className="mt-1 text-xs">{member.role}</p>
+              </div>
+            ))}
+          </div>
         </section>
       </div>
     </main>

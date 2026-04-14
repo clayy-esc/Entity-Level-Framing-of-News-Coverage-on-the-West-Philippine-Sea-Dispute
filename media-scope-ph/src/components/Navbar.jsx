@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import mediaScopeLight from "../assets/media-scope-ph-lm.svg";
+import mediaScopeDark from "../assets/media-scope-ph-dm.svg";
 import {
   BarChart4,
   AlertCircle,
@@ -7,37 +9,35 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
-import mediaScopeLight from "../assets/media-scope-ph-lm.svg";
-import mediaScopeDark from "../assets/media-scope-ph-dm.svg";
+
+const pages = [
+  {
+    id: "coverage",
+    name: "Coverage",
+    icon: <BarChart4 size={16} />,
+    link: "/",
+  },
+  {
+    id: "about",
+    name: "About",
+    icon: <AlertCircle size={16} />,
+    link: "/about",
+  },
+  {
+    id: "methodology",
+    name: "Methodology",
+    icon: <FileText size={16} />,
+    link: "/methodology",
+  },
+  {
+    id: "report",
+    name: "Report",
+    icon: <ListTodo size={16} />,
+    link: "/report",
+  },
+];
 
 const Navbar = ({ darkMode, onToggleDarkMode }) => {
-  const pages = [
-    {
-      id: "coverage",
-      name: "Coverage",
-      icon: <BarChart4 size={16} />,
-      link: "/",
-    },
-    {
-      id: "about",
-      name: "About",
-      icon: <AlertCircle size={16} />,
-      link: "/about",
-    },
-    {
-      id: "methodology",
-      name: "Methodology",
-      icon: <FileText size={16} />,
-      link: "/methodology",
-    },
-    {
-      id: "report",
-      name: "Report",
-      icon: <ListTodo size={16} />,
-      link: "/report",
-    },
-  ];
-
   return (
     <header className="flex h-16 w-full flex-col items-start justify-around border-b border-slate-200 bg-white text-slate-900 md:flex-row md:items-center dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
       <div className="flex flex-row items-center gap-1">
