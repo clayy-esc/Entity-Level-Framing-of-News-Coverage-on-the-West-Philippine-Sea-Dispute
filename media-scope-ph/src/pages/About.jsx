@@ -71,17 +71,17 @@ const About = () => {
             cover key national issues and personalities.
           </p>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
           <h2>Model Pipeline</h2>
-          <p>
+          <p className="text-justify">
             The system processes news articles through a multi-stage pipeline to
             determine entity framing:
           </p>
           <ul>
             {pipeline.map((step, index) => (
               <li key={index} className="flex flex-col">
-                <div className="flex">
-                  <span className="m-2 rounded-md bg-blue-50 p-2 text-blue-700 dark:bg-slate-800 dark:text-blue-300">
+                <div className="flex items-start">
+                  <span className="m-2 shrink-0 self-start rounded-md bg-blue-50 p-2 text-blue-700 dark:bg-slate-800 dark:text-blue-300">
                     {step.icon}
                   </span>
                   <div>
