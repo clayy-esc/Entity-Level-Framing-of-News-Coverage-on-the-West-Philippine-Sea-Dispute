@@ -39,7 +39,7 @@ const pages = [
 
 const Navbar = ({ darkMode, onToggleDarkMode }) => {
   return (
-    <header className="flex h-16 w-full flex-col items-start justify-around border-b border-slate-200 bg-white text-slate-900 md:flex-row md:items-center dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+    <header className="z-10 flex h-16 w-full flex-col items-start justify-around border-b border-slate-200 bg-white text-slate-900 md:flex-row md:items-center dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
       <div className="flex flex-row items-center gap-1">
         <img
           className="size-20"
@@ -53,22 +53,25 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
           {pages.map((page) => (
             <li key={page.id}>
               <Link
-                className="flex flex-row items-center gap-1 rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-slate-800 dark:hover:text-blue-300"
+                className="flex items-center gap-1 rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-slate-800 dark:hover:text-blue-300"
                 to={page.link}
               >
-                {page.icon}
+                <span>{page.icon}</span>
                 <p>{page.name}</p>
               </Link>
             </li>
           ))}
-          <div className="mx-2 h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
+          <div className="mx-2 hidden h-6 w-px bg-slate-300 md:block dark:bg-slate-700"></div>
           <li>
             <button
               type="button"
               onClick={onToggleDarkMode}
-              className="cursor-pointer rounded-full p-4 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-slate-800 dark:hover:text-blue-300"
+              className="flex cursor-pointer items-center gap-1 rounded-xl px-4 py-2 hover:bg-blue-50 hover:text-blue-700 md:rounded-full md:p-4 dark:hover:bg-slate-800 dark:hover:text-blue-300"
             >
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+              <p className="block md:hidden">
+                {darkMode ? "Light Mode" : "Dark Mode"}
+              </p>
             </button>
           </li>
         </ul>

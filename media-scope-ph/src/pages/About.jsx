@@ -1,10 +1,40 @@
 import members from "../content/members.js";
+import {
+  Database,
+  Cpu,
+  BotMessageSquare,
+  LayoutDashboard,
+  ChevronDown,
+} from "lucide-react";
+
+const pipeline = [
+  {
+    icon: <Database size={20} />,
+    stage: "Data Collection",
+    desc: "News articles collected from multiple Philippine outlets",
+  },
+  {
+    icon: <Cpu size={20} />,
+    stage: "Data Processing",
+    desc: "Text cleaning, tokenization, and bilingual processing",
+  },
+  {
+    icon: <BotMessageSquare size={20} />,
+    stage: "Entity-Level Framing Classification",
+    desc: "Determine entity portrayals across different news outlets",
+  },
+  {
+    icon: <LayoutDashboard size={20} />,
+    stage: "Visual Outputs",
+    desc: "Cross-media comparison dashboards and reports",
+  },
+];
 
 const About = () => {
   return (
     <main className="flex-1 bg-gray-100 dark:bg-slate-950">
       <div className="flex flex-col items-center justify-center">
-        <div className="w-2/3">
+        <div className="w-5/6 md:w-3/5">
           <h1>About the Project</h1>
           <p>Understanding media sentiment across Philippine news outlets</p>
         </div>
@@ -42,20 +72,33 @@ const About = () => {
           </p>
         </section>
         <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
-          <h2>System Workflow</h2>
+          <h2>Model Pipeline</h2>
           <p>
             The system processes news articles through a multi-stage pipeline to
-            extract entities and determine sentiment:
+            determine entity framing:
           </p>
           <ul>
-            <li>Article Input</li>
-            <li>Preprocessing</li>
-            <li>Named Entity Recognition</li>
-            <li>Sentiment Classification</li>
-            <li>Visual Outputs</li>
+            {pipeline.map((step, index) => (
+              <li key={index} className="flex flex-col">
+                <div className="flex">
+                  <span className="m-2 rounded-md bg-blue-50 p-2 text-blue-700 dark:bg-slate-800 dark:text-blue-300">
+                    {step.icon}
+                  </span>
+                  <div>
+                    <h3>{step.stage}</h3>
+                    <p>{step.desc}</p>
+                  </div>
+                </div>
+                {index !== pipeline.length - 1 && (
+                  <div className="my-4 flex justify-center">
+                    <ChevronDown size={20} />
+                  </div>
+                )}
+              </li>
+            ))}
           </ul>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
+        <section className="m-2 w-5/6 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
           <h2 className="mb-4">Project Team</h2>
           <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 md:gap-6">
             {members.map((member, index) => (
