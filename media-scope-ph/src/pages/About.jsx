@@ -72,10 +72,11 @@ const About = () => {
           </p>
         </section>
         <section className="m-2 w-5/6 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
-          <h2>Model Pipeline</h2>
+          <h2>Real-Time Cloud Model Deployment</h2>
           <p className="text-justify">
-            The system processes news articles through a multi-stage pipeline to
-            determine entity framing:
+            The system processes news articles related to the West Philippine
+            Sea per sentence through a cloud integration pipeline to determine
+            entity framing at real time:
           </p>
           <ul>
             {pipeline.map((step, index) => (
