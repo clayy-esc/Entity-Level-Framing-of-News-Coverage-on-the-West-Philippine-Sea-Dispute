@@ -105,7 +105,7 @@ const About = () => {
             {members.map((member, index) => (
               <div
                 key={index}
-                className="mx-8 border-l-2 border-slate-300 pl-4 dark:border-slate-700"
+                className="mx-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700"
               >
                 <h3>{member.name}</h3>
                 <p className="mt-1 text-xs">{member.role}</p>
