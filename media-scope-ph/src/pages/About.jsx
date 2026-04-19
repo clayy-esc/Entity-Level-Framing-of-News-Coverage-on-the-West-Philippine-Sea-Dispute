@@ -5,6 +5,9 @@ import {
   BotMessageSquare,
   LayoutDashboard,
   ChevronDown,
+  Target,
+  Lightbulb,
+  Users,
 } from "lucide-react";
 
 const pipeline = [
@@ -32,14 +35,21 @@ const pipeline = [
 
 const About = () => {
   return (
-    <main className="flex-1 bg-gray-100 dark:bg-slate-950">
+    <main className="flex-1">
       <div className="flex flex-col items-center justify-center">
         <div className="w-5/6 md:w-3/5">
-          <h1>About the Project</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            About the Project
+          </h1>
           <p>Understanding media sentiment across Philippine news outlets</p>
         </div>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
-          <h2>Project Purpose</h2>
+        <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            <Target size={12} className="text-blue-700 dark:text-blue-300" />
+            <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
+              Project Purpose
+            </h2>
+          </div>
           <p>
             This system provides entity-level sentiment analysis across multiple
             Philippine news outlets, enabling users to understand how different
@@ -52,8 +62,13 @@ const About = () => {
             reporting patterns, and the evolution of public discourse over time.
           </p>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
-          <h2>Why Entity-Level Sentiment Analysis</h2>
+        <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            <Lightbulb size={12} className="text-blue-700 dark:text-blue-300" />
+            <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
+              Why Entity-Level Sentiment Analysis
+            </h2>
+          </div>
           <p>
             Traditional sentiment analysis examines overall article tone, but
             entity-level analysis provides more granular insights by determining
@@ -71,8 +86,10 @@ const About = () => {
             cover key national issues and personalities.
           </p>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
-          <h2>Real-Time Cloud Model Deployment</h2>
+        <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
+          <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
+            Real-Time Cloud Model Deployment
+          </h2>
           <p className="text-justify">
             The system processes news articles related to the West Philippine
             Sea per sentence through a cloud integration pipeline to determine
@@ -86,7 +103,9 @@ const About = () => {
                     {step.icon}
                   </span>
                   <div>
-                    <h3>{step.stage}</h3>
+                    <h3 className="font-medium text-slate-900 dark:text-slate-100">
+                      {step.stage}
+                    </h3>
                     <p>{step.desc}</p>
                   </div>
                 </div>
@@ -99,15 +118,22 @@ const About = () => {
             ))}
           </ul>
         </section>
-        <section className="m-2 w-5/6 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
-          <h2 className="mb-4">Project Team</h2>
+        <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            <Users size={12} className="text-blue-700 dark:text-blue-300" />
+            <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
+              Project Team
+            </h2>
+          </div>
           <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 md:gap-6">
             {members.map((member, index) => (
               <div
                 key={index}
                 className="mx-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700"
               >
-                <h3>{member.name}</h3>
+                <h3 className="text-slate-900 dark:text-slate-100">
+                  {member.name}
+                </h3>
                 <p className="mt-1 text-xs">{member.role}</p>
               </div>
             ))}

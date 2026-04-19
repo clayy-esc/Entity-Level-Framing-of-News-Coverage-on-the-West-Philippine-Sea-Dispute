@@ -54,7 +54,7 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
             src={darkMode ? mediaScopeDark : mediaScopeLight}
             alt="Media Scope PH Logo"
           />
-          <h1>Media Scope PH</h1>
+          <h1 className="text-xl">Media Scope PH</h1>
         </div>
 
         <button
