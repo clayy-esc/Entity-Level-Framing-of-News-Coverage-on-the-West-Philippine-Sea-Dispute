@@ -47,7 +47,7 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
 
   return (
     <header className="relative z-30 w-full border-b border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
-      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between px-4 md:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-2">
           <img
             className="size-20"
@@ -59,13 +59,13 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
 
         <button
           type="button"
-          className="ml-auto rounded-lg p-2 hover:bg-slate-100 md:hidden dark:hover:bg-slate-800"
+          className="ml-auto rounded-lg p-2 hover:bg-slate-100 lg:hidden dark:hover:bg-slate-800"
           onClick={() => setIsSidebarOpen(true)}
         >
           <Menu size={20} />
         </button>
 
-        <nav className="ml-auto hidden md:block">
+        <nav className="ml-auto hidden lg:block">
           <ul className="flex items-center gap-1">
             {pages.map((page) => (
               <li key={page.id}>
@@ -93,7 +93,7 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
       </div>
 
       {isSidebarOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-slate-900/50"

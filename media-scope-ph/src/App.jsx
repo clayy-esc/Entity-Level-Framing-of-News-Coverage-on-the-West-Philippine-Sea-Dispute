@@ -31,7 +31,7 @@ const App = () => {
   }, [darkMode]);
 
   return (
-    <div className="flex min-h-screen flex-col gap-8 bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+    <div className="font-inter flex min-h-screen flex-col gap-8 bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
       <Navbar
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
