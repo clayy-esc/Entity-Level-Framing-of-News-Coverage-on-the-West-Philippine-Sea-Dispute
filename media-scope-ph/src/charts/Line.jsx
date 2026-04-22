@@ -30,11 +30,7 @@ const defaultDataset = [
   { date: "2026-04-07", positive: 45, neutral: 15, negative: 9 },
 ];
 
-const Line = ({
-  data = defaultDataset,
-  title = "Daily Sentiment Trend",
-  height = 360,
-}) => {
+const Line = ({ data = defaultDataset }) => {
   const isDarkMode = useChartDarkMode();
 
   const option = useMemo(() => {
@@ -50,7 +46,7 @@ const Line = ({
       animationDuration: 350,
       animationDurationUpdate: 250,
       title: {
-        text: title,
+        text: "Daily Sentiment Trend",
         left: "center",
         textStyle: {
           fontSize: 14,
@@ -121,13 +117,13 @@ const Line = ({
         },
       ],
     };
-  }, [data, isDarkMode, title]);
+  }, [data, isDarkMode]);
 
   return (
     <ReactECharts
       echarts={echarts}
       option={option}
-      style={{ height, width: "100%" }}
+      style={{ height: 360, width: "100%" }}
       opts={{ renderer: "canvas" }}
       notMerge
       lazyUpdate
