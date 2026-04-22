@@ -1,4 +1,4 @@
-import members from "../content/members.js";
+import members from "../js/members.js";
 import {
   Database,
   Cpu,

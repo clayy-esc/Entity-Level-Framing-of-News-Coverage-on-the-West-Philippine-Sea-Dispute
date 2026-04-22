@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
@@ -9,6 +9,7 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { getLineChartPalette, useChartDarkMode } from "../js/chartTheme";
 
 echarts.use([
   LineChart,
@@ -34,28 +35,7 @@ const Line = ({
   title = "Daily Sentiment Trend",
   height = 360,
 }) => {
-  // Mirror app theme by watching the root dark class toggle.
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return document.documentElement.classList.contains("dark");
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const updateTheme = () => {
-      setIsDarkMode(root.classList.contains("dark"));
-    };
-
-    updateTheme();
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-
-    return () => observer.disconnect();
-  }, []);
+  const isDarkMode = useChartDarkMode();
 
   const option = useMemo(() => {
     const labels = data.map((item) => item.date);
@@ -63,36 +43,7 @@ const Line = ({
     const neutral = data.map((item) => item.neutral);
     const negative = data.map((item) => item.negative);
 
-    // Keep chart tokens centralized so all ECharts parts switch theme together.
-    const palette = isDarkMode
-      ? {
-          title: "#e2e8f0",
-          label: "#cbd5e1",
-          line: "#475569",
-          split: "#334155",
-          tooltipBg: "rgba(15, 23, 42, 0.94)",
-          tooltipBorder: "#334155",
-          positive: "#22c55e",
-          neutral: "#94a3b8",
-          negative: "#f87171",
-          positiveArea: "rgba(34, 197, 94, 0.14)",
-          neutralArea: "rgba(148, 163, 184, 0.14)",
-          negativeArea: "rgba(248, 113, 113, 0.14)",
-        }
-      : {
-          title: "#0f172a",
-          label: "#334155",
-          line: "#cbd5e1",
-          split: "#e2e8f0",
-          tooltipBg: "rgba(255, 255, 255, 0.96)",
-          tooltipBorder: "#cbd5e1",
-          positive: "#16a34a",
-          neutral: "#64748b",
-          negative: "#ef4444",
-          positiveArea: "rgba(22, 163, 74, 0.12)",
-          neutralArea: "rgba(100, 116, 139, 0.10)",
-          negativeArea: "rgba(239, 68, 68, 0.10)",
-        };
+    const palette = getLineChartPalette(isDarkMode);
 
     return {
       // ECharts option object controls rendering, interaction, and visual style.
