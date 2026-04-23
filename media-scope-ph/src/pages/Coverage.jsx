@@ -25,9 +25,13 @@ const Coverage = () => {
               fugit, tenetur
             </p>
           </div>
-          <div className="space-y-4 rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
-            <Bar />
-            <Line />
+          <div className="space-y-4">
+            <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
+              <Bar />
+            </div>
+            <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
+              <Line />
+            </div>
           </div>
         </section>
       </div>
