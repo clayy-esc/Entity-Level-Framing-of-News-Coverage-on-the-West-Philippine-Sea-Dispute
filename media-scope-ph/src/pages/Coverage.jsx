@@ -1,3 +1,6 @@
+import Bar from "../charts/Bar.jsx";
+import Line from "../charts/Line.jsx";
+
 const Coverage = () => {
   return (
     <main className="flex-1">
@@ -22,15 +25,13 @@ const Coverage = () => {
               fugit, tenetur
             </p>
           </div>
-          <div className="space-y-2 rounded-xl bg-white p-8 text-justify shadow-md dark:bg-slate-900">
-            <p>
-              veniam omnis dicta. Nulla dolorum eveniet perferendis tempore,
-              quisquam maxime nihil esse, quas, libero molestiae magnam debitis.
-              Voluptatibus quos, fugiat assumenda harum ex nisi illum, deleniti
-              eligendi consequatur earum est asperiores eaque sequi aperiam
-              incidunt laborum voluptatem. Possimus, sit! Quis laudantium
-              laboriosam et maiores unde, corrupti vitae?
-            </p>
+          <div className="space-y-4">
+            <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
+              <Bar />
+            </div>
+            <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
+              <Line />
+            </div>
           </div>
         </section>
       </div>
