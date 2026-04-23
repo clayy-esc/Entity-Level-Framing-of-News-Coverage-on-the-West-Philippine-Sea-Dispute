@@ -6,3 +6,9 @@
 @theme {
 	--font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
+
+.dark .date-picker-input::-webkit-calendar-picker-indicator {
+	filter: invert(1) brightness(1.25);
+	opacity: 1;
+	cursor: pointer;
+}
