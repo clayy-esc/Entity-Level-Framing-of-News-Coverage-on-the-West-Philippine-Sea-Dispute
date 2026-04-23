@@ -20,34 +20,27 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-const defaultDataset = [
-  { label: "Facebook", positive: 320, neutral: 190, negative: 70 },
-  { label: "X", positive: 260, neutral: 170, negative: 120 },
-  { label: "TikTok", positive: 390, neutral: 200, negative: 85 },
-  { label: "YouTube", positive: 450, neutral: 230, negative: 60 },
-  { label: "Instagram", positive: 410, neutral: 210, negative: 75 },
-];
-
-const Bar = ({ data = defaultDataset }) => {
+const Bar = ({ data }) => {
   const isDarkMode = useChartDarkMode();
 
   const option = useMemo(() => {
     const categories = data.map((item) => item.label);
-    const positive = data.map((item) => item.positive);
+    const legitimate = data.map((item) => item.legitimate);
+    const defensive = data.map((item) => item.defensive);
+    const aggressor = data.map((item) => item.aggressor);
     const neutral = data.map((item) => item.neutral);
-    const negative = data.map((item) => item.negative);
 
     const palette = getBarChartPalette(isDarkMode);
 
     return {
-      // ECharts option object controls rendering, interaction, and visual style.
       animationDuration: 350,
       animationDurationUpdate: 250,
       title: {
-        text: "Sentiment by Platform",
-        left: "center",
+        text: "Entity Framing Distribution per Outlet",
+        left: 0,
+        top: 0,
         textStyle: {
-          fontSize: 14,
+          fontSize: 20,
           fontWeight: 600,
           color: palette.title,
         },
@@ -60,21 +53,26 @@ const Bar = ({ data = defaultDataset }) => {
         textStyle: { color: palette.label },
       },
       legend: {
-        top: 28,
+        left: "center",
+        bottom: 0,
         textStyle: { color: palette.label },
       },
       grid: {
         left: 24,
         right: 24,
-        bottom: 20,
-        top: 70,
+        bottom: 58,
+        top: 68,
         containLabel: true,
       },
       xAxis: {
         type: "category",
         data: categories,
         axisTick: { alignWithLabel: true },
-        axisLabel: { color: palette.label },
+        axisLabel: {
+          color: palette.label,
+          interval: 0,
+          hideOverlap: false,
+        },
         axisLine: { lineStyle: { color: palette.line } },
       },
       yAxis: {
@@ -85,11 +83,27 @@ const Bar = ({ data = defaultDataset }) => {
       },
       series: [
         {
-          name: "Positive",
+          name: "Legitimate",
           type: "bar",
-          data: positive,
+          data: legitimate,
           barMaxWidth: 36,
-          itemStyle: { color: palette.positive },
+          itemStyle: { color: palette.legitimate },
+          emphasis: { focus: "series" },
+        },
+        {
+          name: "Defensive",
+          type: "bar",
+          data: defensive,
+          barMaxWidth: 36,
+          itemStyle: { color: palette.defensive },
+          emphasis: { focus: "series" },
+        },
+        {
+          name: "Aggressor",
+          type: "bar",
+          data: aggressor,
+          barMaxWidth: 36,
+          itemStyle: { color: palette.aggressor },
           emphasis: { focus: "series" },
         },
         {
@@ -98,14 +112,6 @@ const Bar = ({ data = defaultDataset }) => {
           data: neutral,
           barMaxWidth: 36,
           itemStyle: { color: palette.neutral },
-          emphasis: { focus: "series" },
-        },
-        {
-          name: "Negative",
-          type: "bar",
-          data: negative,
-          barMaxWidth: 36,
-          itemStyle: { color: palette.negative },
           emphasis: { focus: "series" },
         },
       ],
