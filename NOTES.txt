@@ -1,0 +1,10 @@
+Coverage Page: Toggle button for generalization besides the entities filtering title, only show heatmap when generalize toggle is on
+China
+Philippines
+United States
+International Organizations
+Other
+
+
+
+Report Page: Database categories by sentence, article, news outlet
