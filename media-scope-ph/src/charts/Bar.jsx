@@ -9,7 +9,7 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import { getBarChartPalette, useChartDarkMode } from "../js/chartTheme";
+import { getBarChartPalette, useChartDarkMode } from "./theme";
 
 echarts.use([
   BarChart,

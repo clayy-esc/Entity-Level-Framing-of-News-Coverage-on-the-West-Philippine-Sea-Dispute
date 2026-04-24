@@ -1,4 +1,3 @@
-import members from "../js/members.js";
 import {
   Database,
   Cpu,
@@ -30,6 +29,21 @@ const pipeline = [
     icon: <LayoutDashboard size={20} />,
     stage: "Visual Outputs",
     desc: "Cross-media comparison dashboards and reports",
+  },
+];
+
+const members = [
+  {
+    name: "Adams B. Buhion",
+    role: "Project Manager",
+  },
+  {
+    name: "Jonathan Ray Domingo",
+    role: "Natural Language Processing",
+  },
+  {
+    name: "Clarence P. Olayta",
+    role: "Frontend Developer",
   },
 ];
 
