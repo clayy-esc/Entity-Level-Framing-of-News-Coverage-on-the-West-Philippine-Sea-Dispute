@@ -14,6 +14,74 @@ const SOURCE_LABELS = {
 };
 // Allowed framing labels used in filters and chart counters.
 const FRAMING_KEYS = ["Legitimate", "Defensive", "Aggressor", "Neutral"];
+const GENERALIZED_ENTITY_BUCKETS = [
+  "China",
+  "Philippines",
+  "United States",
+  "International Organizations",
+  "Other",
+];
+
+const INTERNATIONAL_ORG_PATTERNS = [
+  /\bunited nations\b/i,
+  /\bun\b/i,
+  /\basean\b/i,
+  /\bworld health organization\b/i,
+  /\bwho\b/i,
+  /\bworld bank\b/i,
+  /\binternational monetary fund\b/i,
+  /\bimf\b/i,
+  /\beuropean union\b/i,
+  /\beu\b/i,
+  /\bnato\b/i,
+  /\binterpol\b/i,
+  /\bunicef\b/i,
+  /\bunesco\b/i,
+  /\bworld trade organization\b/i,
+  /\bwto\b/i,
+  /\basian development bank\b/i,
+  /\badb\b/i,
+  /\binternational criminal court\b/i,
+  /\bicc\b/i,
+  /\binternational labour organization\b/i,
+  /\bilo\b/i,
+  /\bfood and agriculture organization\b/i,
+  /\bfao\b/i,
+];
+
+const CHINA_PATTERNS = [
+  /\bchina\b/i,
+  /\bchinese\b/i,
+  /\bbeijing\b/i,
+  /\bprc\b/i,
+  /people'?s republic of china/i,
+  /\bxi jinping\b/i,
+  /\bccp\b/i,
+];
+
+const PHILIPPINES_PATTERNS = [
+  /\bphilippines\b/i,
+  /\bphilippine\b/i,
+  /\bfilipino\b/i,
+  /\bmanila\b/i,
+  /\bmarcos\b/i,
+  /\bduterte\b/i,
+  /\bafp\b/i,
+];
+
+const UNITED_STATES_PATTERNS = [
+  /\bunited states\b/i,
+  /\busa\b/i,
+  /\bu\.s\.a\.?\b/i,
+  /\bu\.s\.?\b/i,
+  /\bamerican\b/i,
+  /\bwashington\b/i,
+  /\bwhite house\b/i,
+  /\bpentagon\b/i,
+  /\bbiden\b/i,
+  /\btrump\b/i,
+  /\bstate department\b/i,
+];
 
 // Provides a fresh 0-initialized counter object for framing buckets.
 const emptyFramingCounter = () => ({
@@ -64,6 +132,37 @@ const formatDateKey = (dateValue) => {
 
 // Derives YYYY-MM for monthly rollups.
 const toMonthKey = (dateKey) => dateKey.slice(0, 7);
+
+const matchesAnyPattern = (text, patterns) =>
+  patterns.some((pattern) => pattern.test(text));
+
+// Maps free-text entity values to one of the standardized entity buckets.
+const generalizeEntity = (entityText) => {
+  const normalized =
+    typeof entityText === "string" ? entityText.trim().toLowerCase() : "";
+
+  if (!normalized) {
+    return "Other";
+  }
+
+  if (matchesAnyPattern(normalized, INTERNATIONAL_ORG_PATTERNS)) {
+    return "International Organizations";
+  }
+
+  if (matchesAnyPattern(normalized, CHINA_PATTERNS)) {
+    return "China";
+  }
+
+  if (matchesAnyPattern(normalized, PHILIPPINES_PATTERNS)) {
+    return "Philippines";
+  }
+
+  if (matchesAnyPattern(normalized, UNITED_STATES_PATTERNS)) {
+    return "United States";
+  }
+
+  return "Other";
+};
 
 // Computes the next month key used to fill timeline gaps.
 const getNextMonthKey = (monthKey) => {
@@ -138,6 +237,7 @@ const Coverage = () => {
 
   // Filter state used to slice dataset before aggregation.
   const [selectedEntity, setSelectedEntity] = useState("All");
+  const [useGeneralizedEntities, setUseGeneralizedEntities] = useState(false);
   const [selectedEntityLabel, setSelectedEntityLabel] = useState("All");
   const [selectedOutlet, setSelectedOutlet] = useState("All");
   const [startDate, setStartDate] = useState(datasetMinDate || "");
@@ -178,19 +278,27 @@ const Coverage = () => {
         continue;
       }
 
-      const normalizedEntityQuery =
-        selectedEntity === "All" ? "" : selectedEntity.trim().toLowerCase();
       const normalizedEntityText =
         typeof row.entity_text === "string"
           ? row.entity_text.trim().toLowerCase()
           : "";
 
-      // Entity filter supports partial, case-insensitive matching.
-      if (
-        normalizedEntityQuery &&
-        !normalizedEntityText.includes(normalizedEntityQuery)
-      ) {
-        continue;
+      if (useGeneralizedEntities) {
+        const generalizedEntity = generalizeEntity(normalizedEntityText);
+        if (selectedEntity !== "All" && generalizedEntity !== selectedEntity) {
+          continue;
+        }
+      } else {
+        const normalizedEntityQuery =
+          selectedEntity === "All" ? "" : selectedEntity.trim().toLowerCase();
+
+        // Entity filter supports partial, case-insensitive matching.
+        if (
+          normalizedEntityQuery &&
+          !normalizedEntityText.includes(normalizedEntityQuery)
+        ) {
+          continue;
+        }
       }
 
       if (
@@ -279,6 +387,7 @@ const Coverage = () => {
     selectedEntityLabel,
     selectedOutlet,
     startDate,
+    useGeneralizedEntities,
   ]);
 
   return (
@@ -302,25 +411,67 @@ const Coverage = () => {
 
             {/* Entity text input with datalist suggestions. */}
             <div className="space-y-1">
-              <label className="block text-sm font-medium">Entity</label>
-              <input
-                type="text"
-                list="entity-options"
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
-                placeholder="Search entity (empty for all)"
-                value={selectedEntity === "All" ? "" : selectedEntity}
-                onChange={(event) => {
-                  const typedValue = event.target.value;
-                  setSelectedEntity(typedValue === "" ? "All" : typedValue);
-                }}
-              />
-              <datalist id="entity-options">
-                {entities.map((entity) => (
-                  <option key={entity} value={entity}>
-                    {entity}
-                  </option>
-                ))}
-              </datalist>
+              <div className="flex items-center justify-between gap-3">
+                <label className="block text-sm font-medium">Entity</label>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={useGeneralizedEntities}
+                  className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-medium transition ${
+                    useGeneralizedEntities
+                      ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                      : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                  }`}
+                  onClick={() => {
+                    setUseGeneralizedEntities((previous) => !previous);
+                    setSelectedEntity("All");
+                  }}
+                >
+                  <span
+                    className={`inline-block h-2.5 w-2.5 rounded-full ${
+                      useGeneralizedEntities
+                        ? "bg-emerald-400"
+                        : "bg-slate-500 dark:bg-slate-300"
+                    }`}
+                  />
+                  Generalize
+                </button>
+              </div>
+              {useGeneralizedEntities ? (
+                <select
+                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                  value={selectedEntity}
+                  onChange={(event) => setSelectedEntity(event.target.value)}
+                >
+                  <option value="All">All Groups</option>
+                  {GENERALIZED_ENTITY_BUCKETS.map((bucket) => (
+                    <option key={bucket} value={bucket}>
+                      {bucket}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    list="entity-options"
+                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    placeholder="Search entity (empty for all)"
+                    value={selectedEntity === "All" ? "" : selectedEntity}
+                    onChange={(event) => {
+                      const typedValue = event.target.value;
+                      setSelectedEntity(typedValue === "" ? "All" : typedValue);
+                    }}
+                  />
+                  <datalist id="entity-options">
+                    {entities.map((entity) => (
+                      <option key={entity} value={entity}>
+                        {entity}
+                      </option>
+                    ))}
+                  </datalist>
+                </>
+              )}
             </div>
 
             {/* Restricts results to one framing label category. */}
