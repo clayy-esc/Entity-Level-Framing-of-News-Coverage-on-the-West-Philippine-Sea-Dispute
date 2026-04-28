@@ -7017,7 +7017,7 @@
     "framing_label": "Defensive",
     "source": "AP",
     "date": "2024-08-19",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "APNEWS-0183-018",
@@ -7027,7 +7027,7 @@
     "framing_label": "Defensive",
     "source": "AP",
     "date": "2024-08-19",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "APNEWS-0183-020",
@@ -80787,7 +80787,7 @@
     "framing_label": "Neutral",
     "source": "INQUIRER",
     "date": "2023-11-11",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Other"
   },
   {
     "entity_id": "INQ-0094-028",
@@ -81377,7 +81377,7 @@
     "framing_label": "Neutral",
     "source": "INQUIRER",
     "date": "2016-07-29",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "INQ-0141-003",
@@ -83277,7 +83277,7 @@
     "framing_label": "Neutral",
     "source": "INQUIRER",
     "date": "2018-02-06",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "INQ-0228-004",
@@ -98337,7 +98337,7 @@
     "framing_label": "Defensive",
     "source": "INQUIRER",
     "date": "2022-06-01",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "INQ-0935-031",
@@ -116397,7 +116397,7 @@
     "framing_label": "Legitimate",
     "source": "INQUIRER",
     "date": "2019-07-15",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "INQ-1635-001",
@@ -124707,7 +124707,7 @@
     "framing_label": "Defensive",
     "source": "SCMP",
     "date": "2024-10-15",
-    "entity_normalized": "Unknown"
+    "entity_normalized": "Philippines"
   },
   {
     "entity_id": "SCMP-0066-005",
