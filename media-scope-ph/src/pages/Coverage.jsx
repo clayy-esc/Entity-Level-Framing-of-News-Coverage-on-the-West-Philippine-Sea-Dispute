@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Bar from "../charts/Bar.jsx";
+import Heatmap from "../charts/Heatmap.jsx";
 import Line from "../charts/Line.jsx";
 import elfNewsDataset from "../data/elf_news_dataset.json";
 
@@ -29,6 +30,20 @@ const emptyFramingCounter = () => ({
   Aggressor: 0,
   Neutral: 0,
 });
+
+// Provides a nested map for generalized entity x source heatmap aggregation.
+const initHeatmapMatrix = () => {
+  const matrix = {};
+
+  for (const entity of GENERALIZED_ENTITY_BUCKETS) {
+    matrix[entity] = {};
+    for (const sourceCode of SOURCE_ORDER) {
+      matrix[entity][sourceCode] = emptyFramingCounter();
+    }
+  }
+
+  return matrix;
+};
 
 // Normalizes source-level aggregates into the Bar component row shape.
 const toChartRow = (label, counter) => ({
@@ -182,13 +197,14 @@ const Coverage = () => {
   }, []);
 
   // Applies active filters, then builds grouped bar data and monthly timeline data.
-  const { barData, lineData } = useMemo(() => {
+  const { barData, lineData, heatmapData } = useMemo(() => {
     const bySource = SOURCE_ORDER.reduce((accumulator, sourceCode) => {
       accumulator[sourceCode] = emptyFramingCounter();
       return accumulator;
     }, {});
 
     const byMonth = {};
+    const heatmapMatrix = initHeatmapMatrix();
     let minIncludedDate = null;
     let maxIncludedDate = null;
 
@@ -207,8 +223,10 @@ const Coverage = () => {
           ? row.entity_text.trim().toLowerCase()
           : "";
 
+      let generalizedEntity = null;
+
       if (useGeneralizedEntities) {
-        const generalizedEntity = generalizeEntity(row.entity_normalized);
+        generalizedEntity = generalizeEntity(row.entity_normalized);
         if (selectedEntity !== "All" && generalizedEntity !== selectedEntity) {
           continue;
         }
@@ -255,6 +273,14 @@ const Coverage = () => {
         bySource[sourcePrefix][framingLabel] += 1;
       }
 
+      if (
+        useGeneralizedEntities &&
+        generalizedEntity &&
+        heatmapMatrix[generalizedEntity]?.[sourcePrefix]
+      ) {
+        heatmapMatrix[generalizedEntity][sourcePrefix][framingLabel] += 1;
+      }
+
       const monthKey = toMonthKey(dateKey);
 
       if (!byMonth[monthKey]) {
@@ -277,10 +303,34 @@ const Coverage = () => {
     );
 
     // Return early when no records match filters.
+    const heatmapRows = useGeneralizedEntities
+      ? selectedEntity === "All"
+        ? GENERALIZED_ENTITY_BUCKETS
+        : [selectedEntity]
+      : [];
+    const heatmapColumns = SOURCE_ORDER.map(
+      (sourceCode) => SOURCE_LABELS[sourceCode],
+    );
+    const heatmapCells = heatmapRows.flatMap((entity) =>
+      SOURCE_ORDER.map((sourceCode) => ({
+        row: entity,
+        column: SOURCE_LABELS[sourceCode],
+        counts: heatmapMatrix[entity]?.[sourceCode] || emptyFramingCounter(),
+      })),
+    );
+    const heatmapPayload = useGeneralizedEntities
+      ? {
+          rows: heatmapRows,
+          columns: heatmapColumns,
+          cells: heatmapCells,
+        }
+      : null;
+
     if (!minIncludedDate || !maxIncludedDate) {
       return {
         barData: groupedBarData,
         lineData: [],
+        heatmapData: heatmapPayload,
       };
     }
 
@@ -302,6 +352,7 @@ const Coverage = () => {
     return {
       barData: groupedBarData,
       lineData: timelineData,
+      heatmapData: heatmapPayload,
     };
   }, [
     datasetMinDate,
@@ -480,6 +531,15 @@ const Coverage = () => {
             </div>
             <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
               <Line data={lineData} />
+            </div>
+            <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
+              {useGeneralizedEntities ? (
+                <Heatmap data={heatmapData} />
+              ) : (
+                <div className="rounded-lg border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+                  Turn on Generalize to view the entity-source heatmap.
+                </div>
+              )}
             </div>
           </div>
         </section>
