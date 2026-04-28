@@ -140,7 +140,7 @@ const Heatmap = ({ data }) => {
       };
     });
 
-    const chartHeight = Math.max(320, 120 + rows.length * 56);
+    const chartHeight = Math.max(340, 140 + rows.length * 56);
     const gradientString = `linear-gradient(to right, ${colorByLabel.Aggressor} 0%, ${colorByLabel.Neutral} 50%, ${colorByLabel.Defensive} 62.5%, ${colorByLabel.Legitimate} 100%)`;
 
     return {
@@ -149,7 +149,7 @@ const Heatmap = ({ data }) => {
         animationDurationUpdate: 280,
         title: {
           text: "Generalized Entity Framing Score",
-          left: 0,
+          left: "center",
           top: 0,
           textStyle: {
             fontSize: 20,
@@ -195,35 +195,42 @@ const Heatmap = ({ data }) => {
           max: 1,
           calculable: true,
           inRange: {
-            color: ["#fff"], // Base color, itemStyle overrides it
+            color: ["#fff"],
           },
         },
         grid: {
-          left: 120,
-          right: 24,
-          top: 72,
-          bottom: 48,
-          containLabel: true,
+          left: 140,
+          right: 32,
+          top: 80,
+          bottom: 24,
+          containLabel: false,
         },
         xAxis: {
           type: "category",
+          position: "top",
           data: columns,
           axisLabel: {
             color: palette.label,
-            rotate: 18,
+            interval: 0,
+            rotate: 0,
+            width: 110,
+            overflow: "break",
           },
-          axisLine: { lineStyle: { color: palette.line } },
+          axisTick: { show: false },
+          axisLine: { show: false },
           splitLine: { show: true, lineStyle: { color: palette.split } },
         },
         yAxis: {
           type: "category",
           data: rows,
+          inverse: true,
           axisLabel: {
             color: palette.label,
-            width: 110,
+            width: 120,
             overflow: "truncate",
           },
-          axisLine: { lineStyle: { color: palette.line } },
+          axisTick: { show: false },
+          axisLine: { show: false },
           splitLine: { show: true, lineStyle: { color: palette.split } },
         },
         series: [
@@ -270,16 +277,21 @@ const Heatmap = ({ data }) => {
   }
 
   return (
-    <div className="space-y-3">
-      <ReactECharts
-        echarts={echarts}
-        option={option}
-        style={{ height, width: "100%" }}
-        opts={{ renderer: "canvas" }}
-        notMerge
-        lazyUpdate
-      />
-      <div className="mx-auto w-full max-w-2xl space-y-2 px-2 pt-2">
+    <div className="mx-auto w-full max-w-4xl space-y-4">
+      <div className="w-full">
+        <ReactECharts
+          echarts={echarts}
+          option={option}
+          style={{ height, width: "100%" }}
+          opts={{ renderer: "canvas" }}
+          notMerge
+          lazyUpdate
+        />
+      </div>
+      <div
+        className="w-full space-y-2 pt-2"
+        style={{ paddingLeft: 140, paddingRight: 32 }}
+      >
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium text-slate-500">-1</span>
           <div
