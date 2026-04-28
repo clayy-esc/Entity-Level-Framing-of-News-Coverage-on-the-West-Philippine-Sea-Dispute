@@ -22,67 +22,6 @@ const GENERALIZED_ENTITY_BUCKETS = [
   "Other",
 ];
 
-const INTERNATIONAL_ORG_PATTERNS = [
-  /\bunited nations\b/i,
-  /\bun\b/i,
-  /\basean\b/i,
-  /\bworld health organization\b/i,
-  /\bwho\b/i,
-  /\bworld bank\b/i,
-  /\binternational monetary fund\b/i,
-  /\bimf\b/i,
-  /\beuropean union\b/i,
-  /\beu\b/i,
-  /\bnato\b/i,
-  /\binterpol\b/i,
-  /\bunicef\b/i,
-  /\bunesco\b/i,
-  /\bworld trade organization\b/i,
-  /\bwto\b/i,
-  /\basian development bank\b/i,
-  /\badb\b/i,
-  /\binternational criminal court\b/i,
-  /\bicc\b/i,
-  /\binternational labour organization\b/i,
-  /\bilo\b/i,
-  /\bfood and agriculture organization\b/i,
-  /\bfao\b/i,
-];
-
-const CHINA_PATTERNS = [
-  /\bchina\b/i,
-  /\bchinese\b/i,
-  /\bbeijing\b/i,
-  /\bprc\b/i,
-  /people'?s republic of china/i,
-  /\bxi jinping\b/i,
-  /\bccp\b/i,
-];
-
-const PHILIPPINES_PATTERNS = [
-  /\bphilippines\b/i,
-  /\bphilippine\b/i,
-  /\bfilipino\b/i,
-  /\bmanila\b/i,
-  /\bmarcos\b/i,
-  /\bduterte\b/i,
-  /\bafp\b/i,
-];
-
-const UNITED_STATES_PATTERNS = [
-  /\bunited states\b/i,
-  /\busa\b/i,
-  /\bu\.s\.a\.?\b/i,
-  /\bu\.s\.?\b/i,
-  /\bamerican\b/i,
-  /\bwashington\b/i,
-  /\bwhite house\b/i,
-  /\bpentagon\b/i,
-  /\bbiden\b/i,
-  /\btrump\b/i,
-  /\bstate department\b/i,
-];
-
 // Provides a fresh 0-initialized counter object for framing buckets.
 const emptyFramingCounter = () => ({
   Legitimate: 0,
@@ -133,35 +72,20 @@ const formatDateKey = (dateValue) => {
 // Derives YYYY-MM for monthly rollups.
 const toMonthKey = (dateKey) => dateKey.slice(0, 7);
 
-const matchesAnyPattern = (text, patterns) =>
-  patterns.some((pattern) => pattern.test(text));
+// Maps dataset-provided normalized entities into standardized buckets.
+const generalizeEntity = (entityNormalized) => {
+  const trimmed =
+    typeof entityNormalized === "string" ? entityNormalized.trim() : "";
 
-// Maps free-text entity values to one of the standardized entity buckets.
-const generalizeEntity = (entityText) => {
-  const normalized =
-    typeof entityText === "string" ? entityText.trim().toLowerCase() : "";
-
-  if (!normalized) {
+  if (!trimmed) {
     return "Other";
   }
 
-  if (matchesAnyPattern(normalized, INTERNATIONAL_ORG_PATTERNS)) {
-    return "International Organizations";
-  }
+  const matchedBucket = GENERALIZED_ENTITY_BUCKETS.find(
+    (bucket) => bucket.toLowerCase() === trimmed.toLowerCase(),
+  );
 
-  if (matchesAnyPattern(normalized, CHINA_PATTERNS)) {
-    return "China";
-  }
-
-  if (matchesAnyPattern(normalized, PHILIPPINES_PATTERNS)) {
-    return "Philippines";
-  }
-
-  if (matchesAnyPattern(normalized, UNITED_STATES_PATTERNS)) {
-    return "United States";
-  }
-
-  return "Other";
+  return matchedBucket || "Other";
 };
 
 // Computes the next month key used to fill timeline gaps.
@@ -284,7 +208,7 @@ const Coverage = () => {
           : "";
 
       if (useGeneralizedEntities) {
-        const generalizedEntity = generalizeEntity(normalizedEntityText);
+        const generalizedEntity = generalizeEntity(row.entity_normalized);
         if (selectedEntity !== "All" && generalizedEntity !== selectedEntity) {
           continue;
         }
