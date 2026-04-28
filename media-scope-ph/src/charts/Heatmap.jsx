@@ -8,7 +8,7 @@ const LABEL_WEIGHTS = {
   Legitimate: 1,
 };
 
-// 🎨 Gradient color
+// Gradient color
 const getGradientColor = (value) => {
   if (value <= 0) {
     const t = value + 1;
@@ -84,7 +84,7 @@ const Heatmap = ({ data }) => {
 
   if (!data) return null;
 
-  // 🖼 logos
+  // logos
   const logos = {
     "AP News": "/logo/ap.png",
     "GMA News": "/logo/gma.png",
@@ -93,32 +93,34 @@ const Heatmap = ({ data }) => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-md dark:shadow-none border border-slate-200 dark:border-slate-700">
-
+    <div className="mx-auto w-full max-w-5xl">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
         {/* Title */}
-        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">
+        <h2 className="mb-1 text-xl font-semibold text-slate-900 dark:text-slate-100">
           Entity-Level Framing Heatmap
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
           Weighted average framing score per entity across media sources
         </p>
 
         {/* Header */}
-        <div className="grid grid-cols-5 border-b border-slate-200 dark:border-slate-700 pb-3">
-          <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center">
+        <div className="grid grid-cols-5 border-b border-slate-200 pb-3 dark:border-slate-700">
+          <div className="flex items-center justify-center text-sm font-semibold text-slate-700 dark:text-slate-300">
             Entity
           </div>
 
           {data.columns.map((col) => (
-            <div key={col} className="flex flex-col items-center justify-center">
+            <div
+              key={col}
+              className="flex flex-col items-center justify-center"
+            >
               <img
                 src={logos[col]}
                 alt={col}
                 onError={(e) => (e.target.style.display = "none")}
-                className="h-8 object-contain mb-1"
+                className="mb-1 h-8 object-contain"
               />
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 text-center leading-tight px-1">
+              <span className="px-1 text-center text-[11px] leading-tight text-slate-500 dark:text-slate-400">
                 {col}
               </span>
             </div>
@@ -130,16 +132,9 @@ const Heatmap = ({ data }) => {
           {data.rows.map((row) => (
             <div
               key={row}
-              className="
-                grid grid-cols-5 items-center py-3 px-2 rounded-lg
-                bg-white dark:bg-slate-800
-                border border-slate-200 dark:border-slate-700
-                transition-all duration-200
-                hover:bg-slate-100 dark:hover:bg-slate-700/50
-                hover:ring-1 hover:ring-slate-300 dark:hover:ring-slate-600
-              "
+              className="grid grid-cols-5 items-center rounded-lg border border-slate-200 bg-white px-2 py-3 transition-all duration-200 hover:bg-slate-100 hover:ring-1 hover:ring-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700/50 dark:hover:ring-slate-600"
             >
-              <div className="text-slate-800 dark:text-slate-200 text-sm pl-1">
+              <div className="pl-1 text-sm text-slate-800 dark:text-slate-200">
                 {row}
               </div>
 
@@ -164,7 +159,7 @@ const Heatmap = ({ data }) => {
                             ? "2px solid #22c55e"
                             : "none",
                       }}
-                      className="px-3 py-2 rounded-lg text-xs font-semibold w-24 text-center transition-all duration-200 hover:scale-105"
+                      className="w-24 rounded-lg px-3 py-2 text-center text-xs font-semibold transition-all duration-200 hover:scale-105"
                       title={`Score: ${value.toFixed(2)}
 
 Aggressor: ${cell.breakdown.Aggressor}
@@ -184,7 +179,7 @@ Total (n): ${cell.total}`}
         </div>
 
         {/* Legend */}
-        <div className="mt-6 text-xs text-slate-600 dark:text-slate-300 flex flex-col items-center">
+        <div className="mt-6 flex flex-col items-center text-xs text-slate-600 dark:text-slate-300">
           <div className="mb-2">Framing Scale (Weighted)</div>
 
           <div className="flex items-center gap-2">
@@ -199,7 +194,7 @@ Total (n): ${cell.total}`}
             <span>+1</span>
           </div>
 
-          <div className="flex justify-between w-72 mt-1 text-[10px]">
+          <div className="mt-1 flex w-72 justify-between text-[10px]">
             <span>Aggressor (-1)</span>
             <span>Neutral (0)</span>
             <span>Defensive (0.25)</span>
