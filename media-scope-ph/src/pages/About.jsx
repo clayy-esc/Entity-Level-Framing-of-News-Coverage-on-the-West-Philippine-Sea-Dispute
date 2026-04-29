@@ -8,6 +8,9 @@ import {
   Lightbulb,
   Users,
 } from "lucide-react";
+import adams from "../assets/thesis-members/adams.svg";
+import clarence from "../assets/thesis-members/clarence.svg";
+import jonathan from "../assets/thesis-members/jonathan.svg";
 
 const pipeline = [
   {
@@ -34,14 +37,17 @@ const pipeline = [
 
 const members = [
   {
+    img: adams,
     name: "Adams B. Buhion",
     role: "Project Manager",
   },
   {
+    img: jonathan,
     name: "Jonathan Ray Domingo",
     role: "Natural Language Processing",
   },
   {
+    img: clarence,
     name: "Clarence P. Olayta",
     role: "Frontend Developer",
   },
@@ -145,6 +151,11 @@ const About = () => {
                 key={index}
                 className="mx-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700"
               >
+                <img
+                  src={member.img}
+                  alt={member.name}
+                  className="mb-2 size-16 rounded-full object-cover"
+                />
                 <h3 className="text-slate-900 dark:text-slate-100">
                   {member.name}
                 </h3>
