@@ -149,17 +149,19 @@ const About = () => {
             {members.map((member, index) => (
               <div
                 key={index}
-                className="mx-4 border-l-2 border-slate-300 pl-4 dark:border-slate-700"
+                className="mx-4 flex border-l-2 border-slate-300 pl-4 dark:border-slate-700"
               >
                 <img
                   src={member.img}
                   alt={member.name}
-                  className="mb-2 size-16 rounded-full object-cover"
+                  className="size-16 rounded-full object-cover"
                 />
-                <h3 className="text-slate-900 dark:text-slate-100">
-                  {member.name}
-                </h3>
-                <p className="mt-1 text-xs">{member.role}</p>
+                <div>
+                  <h3 className="text-slate-900 dark:text-slate-100">
+                    {member.name}
+                  </h3>
+                  <p className="mt-1 text-xs">{member.role}</p>
+                </div>
               </div>
             ))}
           </div>
