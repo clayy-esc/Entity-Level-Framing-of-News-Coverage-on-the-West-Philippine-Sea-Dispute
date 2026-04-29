@@ -104,7 +104,8 @@ const Heatmap = ({ data }) => {
           Entity-Level Framing Heatmap
         </h2>
         <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-          Weighted average framing score per entity across media sources
+          Weighted average framing score per generalized entity across media
+          sources
         </p>
 
         {/* Header */}

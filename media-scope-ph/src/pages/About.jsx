@@ -156,7 +156,7 @@ const About = () => {
                   alt={member.name}
                   className="size-16 rounded-full object-cover"
                 />
-                <div>
+                <div className="flex flex-col items-start justify-center pl-4">
                   <h3 className="text-slate-900 dark:text-slate-100">
                     {member.name}
                   </h3>
