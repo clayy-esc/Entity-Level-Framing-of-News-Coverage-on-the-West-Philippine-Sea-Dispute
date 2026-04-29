@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import mediaScopeLight from "../assets/media-scope-ph-lm.svg";
-import mediaScopeDark from "../assets/media-scope-ph-dm.svg";
+import appLogoLight from "../assets/app-logo-light.svg";
+import appLogoDark from "../assets/app-logo-dark.svg";
 import {
   BarChart4,
   AlertCircle,
@@ -51,7 +51,7 @@ const Navbar = ({ darkMode, onToggleDarkMode }) => {
         <div className="flex items-center gap-2">
           <img
             className="size-20"
-            src={darkMode ? mediaScopeDark : mediaScopeLight}
+            src={darkMode ? appLogoDark : appLogoLight}
             alt="Media Scope PH Logo"
           />
           <h1 className="text-xl">Media Scope PH</h1>

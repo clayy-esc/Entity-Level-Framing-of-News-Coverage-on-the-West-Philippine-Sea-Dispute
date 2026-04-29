@@ -1,5 +1,9 @@
 import { memo, useMemo } from "react";
 import { getBarChartPalette, useChartDarkMode } from "./theme";
+import apnews from "../assets/news-logo/apnews.svg";
+import gma from "../assets/news-logo/gma.svg";
+import inquirer from "../assets/news-logo/inquirer.svg";
+import scmp from "../assets/news-logo/scmp.svg";
 
 const LABEL_WEIGHTS = {
   Aggressor: -1,
@@ -86,10 +90,10 @@ const Heatmap = ({ data }) => {
 
   // logos
   const logos = {
-    "AP News": "/logo/ap.png",
-    "GMA News": "/logo/gma.png",
-    "Philippine Daily Inquirer": "/logo/inquirer.png",
-    "South China Morning Post": "/logo/scmp.png",
+    "AP News": apnews,
+    "GMA News": gma,
+    "Philippine Daily Inquirer": inquirer,
+    "South China Morning Post": scmp,
   };
 
   return (
