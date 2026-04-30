@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import Bar from "../charts/Bar.jsx";
 import Heatmap from "../charts/Heatmap.jsx";
 import Line from "../charts/Line.jsx";
+import Table from "../charts/Table.jsx";
 import elfNewsDataset from "../data/elf_news_dataset.json";
 
 // Canonical outlet order used for grouped bar display.
@@ -197,7 +198,7 @@ const Coverage = () => {
   }, []);
 
   // Applies active filters, then builds grouped bar data and monthly timeline data.
-  const { barData, lineData, heatmapData } = useMemo(() => {
+  const { barData, lineData, heatmapData, tableData } = useMemo(() => {
     const bySource = SOURCE_ORDER.reduce((accumulator, sourceCode) => {
       accumulator[sourceCode] = emptyFramingCounter();
       return accumulator;
@@ -205,6 +206,7 @@ const Coverage = () => {
 
     const byMonth = {};
     const heatmapMatrix = initHeatmapMatrix();
+    const tableRows = [];
     let minIncludedDate = null;
     let maxIncludedDate = null;
 
@@ -296,6 +298,8 @@ const Coverage = () => {
       if (!maxIncludedDate || dateKey > maxIncludedDate) {
         maxIncludedDate = dateKey;
       }
+
+      tableRows.push(row);
     }
 
     const groupedBarData = SOURCE_ORDER.map((sourceCode) =>
@@ -331,6 +335,7 @@ const Coverage = () => {
         barData: groupedBarData,
         lineData: [],
         heatmapData: heatmapPayload,
+        tableData: tableRows,
       };
     }
 
@@ -353,6 +358,7 @@ const Coverage = () => {
       barData: groupedBarData,
       lineData: timelineData,
       heatmapData: heatmapPayload,
+      tableData: tableRows,
     };
   }, [
     datasetMinDate,
@@ -536,9 +542,7 @@ const Coverage = () => {
               {useGeneralizedEntities ? (
                 <Heatmap data={heatmapData} />
               ) : (
-                <div className="rounded-lg border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-                  Turn on Generalize to view the entity-source heatmap.
-                </div>
+                <Table data={tableData} />
               )}
             </div>
           </div>
