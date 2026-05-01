@@ -22,3 +22,29 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# =========================
+# 🔹 BACKEND (Python)
+# =========================
+backend/venv/
+backend/__pycache__/
+*.pyc
+
+# =========================
+# 🔹 ENV FILES (secrets)
+# =========================
+.env
+backend/.env
+
+# =========================
+# 🔹 ML MODELS / CACHE
+# =========================
+*.safetensors
+*.bin
+models/
+hf_cache/
+
+# =========================
+# 🔹 OPTIONAL (if appears)
+# =========================
+backend/models/
