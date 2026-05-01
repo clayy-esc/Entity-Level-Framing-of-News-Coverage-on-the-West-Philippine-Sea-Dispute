@@ -25,15 +25,33 @@ const Report = () => {
   const limit = 5;
 
   const colorMap = {
-    Aggressor: "bg-red-500/20 text-red-400",
-    Defensive: "bg-blue-500/20 text-blue-400",
-    Legitimate: "bg-green-500/20 text-green-400",
-    Neutral: "bg-gray-500/20 text-gray-400"
+    Aggressor: `
+      bg-red-100 text-red-700 border border-red-300
+      dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30
+    `,
+    Defensive: `
+      bg-blue-100 text-blue-700 border border-blue-300
+      dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30
+    `,
+    Legitimate: `
+      bg-green-100 text-green-700 border border-green-300
+      dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30
+    `,
+    Neutral: `
+      bg-gray-100 text-gray-700 border border-gray-300
+      dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30
+    `
   };
 
   const modelColorMap = {
-    RoBERTa: "bg-teal-500/20 text-teal-300",
-    BERT: "bg-purple-500/20 text-purple-300"
+    RoBERTa: `
+      bg-teal-100 text-teal-700 border border-teal-300
+      dark:bg-teal-500/20 dark:text-teal-300 dark:border-teal-500/30
+    `,
+    BERT: `
+      bg-purple-100 text-purple-700 border border-purple-300
+      dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30
+    `
   };
 
   // =========================
@@ -118,13 +136,13 @@ const Report = () => {
 
   const entityTexts = useMemo(() =>
     entities.map(ent => text.slice(ent.start, ent.end)),
-  [entities, text]);
+    [entities, text]);
 
   const currentPayload = useMemo(() => JSON.stringify({
     sentence: text,
     entities: entityTexts,
     model: model
-  }), [text, entityTexts, model]);  
+  }), [text, entityTexts, model]);
 
   const isSameAsLast =
     lastAnalysisRef.current &&
@@ -226,7 +244,7 @@ const Report = () => {
           title="Click to remove"
           className={`relative px-1 rounded cursor-pointer transition-all duration-200 group ${result
             ? colorMap[result.framing_label]
-            : "bg-yellow-400/40 border border-yellow-400 text-yellow-200"
+            : "bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-400/20 dark:text-yellow-200 dark:border-yellow-400"
             } hover:ring-2 hover:ring-red-400`}
         >
           {entityText}
@@ -251,23 +269,23 @@ const Report = () => {
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-300 p-8">
+    <div className="min-h-screen bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300 p-8">
       <div className="max-w-5xl mx-auto space-y-8">
 
         {/* HEADER */}
         <div>
-          <h1 className="text-4xl font-bold text-white">Detailed Report</h1>
-          <p className="text-slate-400 text-sm">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Detailed Report</h1>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">
             Entity-level framing analysis with real-time testing
           </p>
         </div>
 
         {/* ANALYZER */}
-        <div className="bg-slate-800 p-6 rounded-2xl shadow">
-          <h2 className="text-lg font-semibold mb-2 text-white">
+        <div className="bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow">
+          <h2 className="text-lg font-semibold mb-2 text-slate-900 dark:text-white">
             Real-Time Sentence Analyzer
           </h2>
-          <p className="text-sm text-slate-400 mb-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
             Enter a sentence and highlight entities.
           </p>
 
@@ -281,28 +299,56 @@ const Report = () => {
               setDuplicateMessage(null);
             }}
             placeholder="Enter a sentence..."
-            className="w-full bg-slate-700 border border-slate-600 p-3 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white border border-slate-300 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <div className="bg-slate-700/40 border border-slate-600 text-slate-300 text-sm px-3 py-2 rounded mb-3">
+          <div className="bg-slate-100 border border-slate-300 text-slate-600 dark:bg-slate-700/40 dark:border-slate-600 dark:text-slate-300 text-sm px-3 py-2 rounded mb-3">
             💡 Highlight the entity you want to analyze.
           </div>
 
           <div
             ref={containerRef}
             onMouseUp={handleMouseUp}
-            className="bg-slate-700 border border-slate-600 p-4 rounded min-h-[80px] cursor-text mb-2"
+            className="bg-slate-50 border border-slate-300 dark:bg-slate-700 dark:border-slate-600 p-4 rounded min-h-[80px] cursor-text mb-2"
           >
             {renderText()}
           </div>
 
           {/* Selected Entities */}
           {entities.length > 0 && (
-            <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
-              <span>Selected: {entityTexts.join(", ")}</span>
-              <span className="bg-slate-600 px-2 py-0.5 rounded text-xs">
+            <div className="text-xs text-slate-600 dark:text-slate-400 mt-2 flex items-center gap-2 flex-wrap">
+
+              <span>
+                Selected:
+              </span>
+
+              {/* Entity chips */}
+              <div className="flex flex-wrap gap-1">
+                {entityTexts.map((ent, i) => (
+                  <span
+                    key={i}
+                    className="
+                      px-2 py-0.5 rounded-md text-xs
+                      bg-slate-200 text-slate-700
+                      dark:bg-slate-600 dark:text-slate-200
+                    "
+                  >
+                    {ent}
+                  </span>
+                ))}
+              </div>
+
+              {/* Count badge */}
+              <span
+                className="
+                  ml-1 px-2 py-0.5 rounded text-xs
+                  bg-blue-100 text-blue-700
+                  dark:bg-blue-500/20 dark:text-blue-300
+                "
+              >
                 {entities.length}
               </span>
+
             </div>
           )}
 
@@ -318,12 +364,21 @@ const Report = () => {
                   loading
                     ? "Processing..."
                     : entities.length === 0
-                      ? "Select/Highlight at least one entity"
-                      : isSameAsLast
-                        ? "No changes to analyze"
-                        : "Analyze selected entities"
+                    ? "Select/Highlight at least one entity"
+                    : isSameAsLast
+                    ? "No changes to analyze"
+                    : "Analyze selected entities"
                 }
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 transition"
+                className="
+                  bg-blue-600 text-white hover:bg-blue-700
+                  dark:bg-blue-500 dark:hover:bg-blue-600
+
+                  px-4 py-2 rounded text-sm
+                  flex items-center gap-2
+                  transition
+
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
               >
                 {loading && (
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -334,7 +389,7 @@ const Report = () => {
 
               <button
                 onClick={handleClear}
-                className="bg-slate-600 hover:bg-slate-500 px-3 py-2 rounded text-sm transition"
+                className="bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500 dark:text-white px-3 py-2 rounded text-sm transition"
               >
                 Clear
               </button>
@@ -342,14 +397,21 @@ const Report = () => {
 
             {/* RIGHT: MODEL SELECT */}
             <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-600 dark:text-slate-400">
                 Model
               </span>
 
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="bg-slate-700 hover:bg-slate-600 border border-slate-600 px-3 py-2 rounded text-sm cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 transition"
+                className="
+                  bg-white text-slate-700 border border-slate-300
+                  hover:bg-slate-100
+                  dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-600
+                  px-3 py-2 rounded text-sm cursor-pointer
+                  focus:outline-none focus:ring-1 focus:ring-blue-500
+                  transition
+                "
               >
                 <option value="model1">RoBERTa</option>
                 <option value="model2">BERT</option>
@@ -361,7 +423,7 @@ const Report = () => {
 
         {/* 🔥 DUPLICATE MESSAGE */}
         {duplicateMessage?.id && (
-          <div className="mt-3 text-xs text-yellow-400 bg-yellow-500/10 border border-yellow-500/30 px-3 py-2 rounded">
+          <div className="mt-3 text-xs px-3 py-2 rounded text-yellow-700 bg-yellow-100 border border-yellow-300 dark:text-yellow-400 dark:bg-yellow-500/10 dark:border-yellow-500/30">
             ⚠️ {duplicateMessage.text} —{" "}
             <span
               onClick={async () => {
@@ -408,25 +470,25 @@ const Report = () => {
         )}
 
         {/* COMMUNITY */}
-        <div className="bg-slate-800 p-6 rounded-2xl">
-          <h2 className="text-lg font-semibold mb-4 text-white">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl">
+          <h2 className="text-lg font-semibold mb-2 text-slate-900 dark:text-white">
             Community Analyses
           </h2>
 
           {/* 🔹 Total Count */}
-          <div className="text-sm text-slate-400 mb-3">
+          <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
             📊 Total Analyses: {total}
           </div>
 
           {analyses.length === 0 ? (
-            <div className="text-center text-slate-400 text-sm">
+            <div className="text-center text-slate-600 dark:text-slate-400 text-sm">
               No saved analyses yet
             </div>
           ) : (
             <table className="w-full text-sm border-collapse">
 
               <thead>
-                <tr className="text-slate-400 border-b border-slate-600">
+                <tr className="text-slate-600 dark:text-slate-400 border-b border-slate-300 dark:border-slate-600">
                   <th className="text-left py-3 px-4">Sentence</th>
                   <th className="text-center py-3 px-4">Entity</th>
                   <th className="text-center py-3 px-4">Framing</th>
@@ -455,10 +517,14 @@ const Report = () => {
                           if (i === 0) rowRefs.current[a.id] = el;
                         }}
                         className={`
-                          bg-slate-700/50
-                          ${i !== a.entities.length - 1 ? "border-b border-slate-600" : ""}
+                          bg-white dark:bg-slate-700/50
+                          ${i !== a.entities.length - 1
+                            ? "border-b border-slate-200 dark:border-slate-600"
+                            : ""}
                           ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""}
-                          ${a.id === highlightId ? "bg-yellow-500/10" : ""}
+                          ${a.id === highlightId
+                            ? "bg-yellow-100 dark:bg-yellow-500/10"
+                            : ""}
                         `}
                       >
 
@@ -497,7 +563,7 @@ const Report = () => {
                         </td>
 
                         {/* Date */}
-                        <td className="py-4 px-4 text-center text-xs text-slate-400 whitespace-nowrap">
+                        <td className="py-4 px-4 text-center text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
                           {new Date(a.created_at).toLocaleString()}
                         </td>
 
@@ -510,7 +576,7 @@ const Report = () => {
           )}
 
           {/* 🔹 PAGINATION */}
-          <div className="flex justify-between text-sm text-slate-400 mt-4">
+          <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400 mt-4">
             <span>
               {total === 0
                 ? "No results"
@@ -526,7 +592,7 @@ const Report = () => {
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1 bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Prev
             </button>
@@ -534,7 +600,7 @@ const Report = () => {
             <button
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1 bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Next
             </button>
