@@ -12,7 +12,8 @@ Base.metadata.create_all(bind=engine)
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change later to your domain
+    allow_origins=["https://localhost:5173",
+                   "https://https://main.d2jzy2dx4m95ae.amplifyapp.com/"],  # change later to your domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
