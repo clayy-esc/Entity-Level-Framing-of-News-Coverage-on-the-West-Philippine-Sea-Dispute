@@ -1,39 +1,7 @@
-import {
-  Database,
-  Cpu,
-  BotMessageSquare,
-  LayoutDashboard,
-  ChevronDown,
-  Target,
-  Lightbulb,
-  Users,
-} from "lucide-react";
+import { Target, Lightbulb, Calculator, Users } from "lucide-react";
 import adams from "../assets/thesis-members/adams.svg";
 import clarence from "../assets/thesis-members/clarence.svg";
 import jonathan from "../assets/thesis-members/jonathan.svg";
-
-const pipeline = [
-  {
-    icon: <Database size={20} />,
-    stage: "Data Collection",
-    desc: "News articles collected from multiple Philippine outlets",
-  },
-  {
-    icon: <Cpu size={20} />,
-    stage: "Data Processing",
-    desc: "Text cleaning, tokenization, and bilingual processing",
-  },
-  {
-    icon: <BotMessageSquare size={20} />,
-    stage: "Entity-Level Framing Classification",
-    desc: "Determine entity portrayals across different news outlets",
-  },
-  {
-    icon: <LayoutDashboard size={20} />,
-    stage: "Visual Outputs",
-    desc: "Cross-media comparison dashboards and reports",
-  },
-];
 
 const members = [
   {
@@ -65,7 +33,7 @@ const About = () => {
         </div>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <Target size={12} className="text-blue-700 dark:text-blue-300" />
+            <Target size={16} className="text-blue-700 dark:text-blue-300" />
             <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
               Project Purpose
             </h2>
@@ -84,7 +52,10 @@ const About = () => {
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <Lightbulb size={12} className="text-blue-700 dark:text-blue-300" />
+            <Lightbulb
+              size={16}
+              className="fill-blue-700 text-blue-700 dark:fill-blue-300 dark:text-blue-300"
+            />
             <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
               Why Entity-Level Sentiment Analysis
             </h2>
@@ -108,39 +79,56 @@ const About = () => {
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
           <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
-            Real-Time Cloud Model Deployment
+            Video
           </h2>
           <p className="text-justify">
             The system processes news articles related to the West Philippine
             Sea per sentence through a cloud integration pipeline to determine
             entity framing at real time:
           </p>
-          <ul>
-            {pipeline.map((step, index) => (
-              <li key={index} className="flex flex-col">
-                <div className="flex items-start">
-                  <span className="m-2 shrink-0 self-start rounded-md bg-blue-50 p-2 text-blue-700 dark:bg-slate-800 dark:text-blue-300">
-                    {step.icon}
-                  </span>
-                  <div>
-                    <h3 className="font-medium text-slate-900 dark:text-slate-100">
-                      {step.stage}
-                    </h3>
-                    <p>{step.desc}</p>
-                  </div>
-                </div>
-                {index !== pipeline.length - 1 && (
-                  <div className="my-4 flex justify-center">
-                    <ChevronDown size={20} />
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+          <div className="mx-auto aspect-video w-full">
+            <iframe
+              src="https://www.youtube.com/embed/dB9ZDwwDPgg?si=mL54DAE4Kdp3oVmF"
+              title="YouTube video player"
+              className="h-full w-full rounded-lg"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </section>
+        <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
+          <div className="flex items-center gap-2">
+            <Calculator
+              size={16}
+              className="text-blue-700 dark:text-blue-300"
+            />
+            <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
+              Calculations
+            </h2>
+          </div>
+          <p>
+            Traditional sentiment analysis examines overall article tone, but
+            entity-level analysis provides more granular insights by determining
+            how specific entities are portrayed within the same article.
+          </p>
+          <p>
+            For example, a single article may express positive sentiment toward
+            one political figure while expressing negative sentiment toward
+            another. This nuanced approach reveals how media outlets frame
+            different actors in complex political narratives.
+          </p>
+          <p>
+            In the Philippine context, where media plurality and political
+            discourse are vibrant, this tool helps track how various outlets
+            cover key national issues and personalities.
+          </p>
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <Users size={12} className="text-blue-700 dark:text-blue-300" />
+            <Users
+              size={16}
+              className="fill-blue-700 text-blue-700 dark:fill-blue-300 dark:text-blue-300"
+            />
             <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
               Project Team
             </h2>
