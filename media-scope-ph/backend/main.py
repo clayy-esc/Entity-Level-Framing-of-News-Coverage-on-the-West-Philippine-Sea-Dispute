@@ -14,8 +14,8 @@ def on_startup():
 
 # CORS (support multiple origins)
 origins = [
-    "http://localhost:5173",  # local dev
-    os.getenv("FRONTEND_URL")  # production (Vercel)
+    "http://localhost:5173",
+    "https://entity-level-framing-of-news.vercel.app"
 ]
 
 # Remove None values (important)
