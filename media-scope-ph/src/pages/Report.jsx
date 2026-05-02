@@ -21,7 +21,6 @@ const Report = () => {
   const containerRef = useRef(null);
   const lastAnalysisRef = useRef(null);
 
-
   const limit = 5;
 
   const colorMap = {
@@ -40,7 +39,7 @@ const Report = () => {
     Neutral: `
       bg-gray-100 text-gray-700 border border-gray-300
       dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30
-    `
+    `,
   };
 
   const modelColorMap = {
@@ -51,7 +50,7 @@ const Report = () => {
     BERT: `
       bg-purple-100 text-purple-700 border border-purple-300
       dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30
-    `
+    `,
   };
 
   // =========================
@@ -79,7 +78,7 @@ const Report = () => {
     const tokens = text.match(/\S+|\s+/g) || [];
     let offset = 0;
 
-    return tokens.map(t => {
+    return tokens.map((t) => {
       const start = offset;
       const end = offset + t.length;
       offset = end;
@@ -91,7 +90,7 @@ const Report = () => {
     let newStart = start;
     let newEnd = end;
 
-    tokenSpans.forEach(tok => {
+    tokenSpans.forEach((tok) => {
       if (start > tok.start && start < tok.end) newStart = tok.start;
       if (end > tok.start && end < tok.end) newEnd = tok.end;
     });
@@ -100,7 +99,7 @@ const Report = () => {
   };
 
   const isOverlapping = (start, end) => {
-    return entities.some(ent => start < ent.end && end > ent.start);
+    return entities.some((ent) => start < ent.end && end > ent.start);
   };
 
   const handleMouseUp = () => {
@@ -126,23 +125,28 @@ const Report = () => {
       return;
     }
 
-    setEntities(prev => [...prev, { start, end }]);
+    setEntities((prev) => [...prev, { start, end }]);
     selection.removeAllRanges();
   };
 
   const handleDelete = (index) => {
-    setEntities(prev => prev.filter((_, i) => i !== index));
+    setEntities((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const entityTexts = useMemo(() =>
-    entities.map(ent => text.slice(ent.start, ent.end)),
-    [entities, text]);
+  const entityTexts = useMemo(
+    () => entities.map((ent) => text.slice(ent.start, ent.end)),
+    [entities, text],
+  );
 
-  const currentPayload = useMemo(() => JSON.stringify({
-    sentence: text,
-    entities: entityTexts,
-    model: model
-  }), [text, entityTexts, model]);
+  const currentPayload = useMemo(
+    () =>
+      JSON.stringify({
+        sentence: text,
+        entities: entityTexts,
+        model: model,
+      }),
+    [text, entityTexts, model],
+  );
 
   const isSameAsLast =
     lastAnalysisRef.current &&
@@ -163,16 +167,16 @@ const Report = () => {
         body: JSON.stringify({
           sentence: text,
           entities: entityTexts,
-          model: model
-        })
+          model: model,
+        }),
       });
 
       const data = await res.json();
 
       // attach model for UI consistency
-      const enriched = (data.results || []).map(r => ({
+      const enriched = (data.results || []).map((r) => ({
         ...r,
-        model: model === "model1" ? "RoBERTa" : "BERT"
+        model: model === "model1" ? "RoBERTa" : "BERT",
       }));
 
       setResults(enriched);
@@ -182,7 +186,7 @@ const Report = () => {
         // 🔹 duplicate case
         setDuplicateMessage({
           text: "Already analyzed",
-          id: data.analysis_id
+          id: data.analysis_id,
         });
       } else {
         // 🔹 new analysis
@@ -201,7 +205,6 @@ const Report = () => {
 
       // ✅ ONLY ONE refresh
       await fetchAnalyses();
-
     } catch (error) {
       console.error("Error:", error);
       setDuplicateMessage(null);
@@ -232,26 +235,27 @@ const Report = () => {
       parts.push(text.slice(last, ent.start));
 
       const originalIndex = entities.findIndex(
-        e => e.start === ent.start && e.end === ent.end
+        (e) => e.start === ent.start && e.end === ent.end,
       );
       const entityText = text.slice(ent.start, ent.end);
-      const result = results.find(r => r.entity_text === entityText);
+      const result = results.find((r) => r.entity_text === entityText);
 
       parts.push(
         <span
           key={i}
           onClick={() => handleDelete(originalIndex)}
           title="Click to remove"
-          className={`relative px-1 rounded cursor-pointer transition-all duration-200 group ${result
-            ? colorMap[result.framing_label]
-            : "bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-400/20 dark:text-yellow-200 dark:border-yellow-400"
-            } hover:ring-2 hover:ring-red-400`}
+          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${
+            result
+              ? colorMap[result.framing_label]
+              : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
+          } hover:ring-2 hover:ring-red-400`}
         >
           {entityText}
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 group-hover:opacity-100">
             ×
           </span>
-        </span>
+        </span>,
       );
 
       last = ent.end;
@@ -269,23 +273,24 @@ const Report = () => {
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300 p-8">
-      <div className="max-w-5xl mx-auto space-y-8">
-
+    <div className="min-h-screen bg-slate-100 p-8 text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+      <div className="mx-auto max-w-5xl space-y-8">
         {/* HEADER */}
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Detailed Report</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+            Detailed Report
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Entity-level framing analysis with real-time testing
           </p>
         </div>
 
         {/* ANALYZER */}
-        <div className="bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow">
-          <h2 className="text-lg font-semibold mb-2 text-slate-900 dark:text-white">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-800">
+          <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
             Real-Time Sentence Analyzer
           </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
             Enter a sentence and highlight entities.
           </p>
 
@@ -299,39 +304,32 @@ const Report = () => {
               setDuplicateMessage(null);
             }}
             placeholder="Enter a sentence..."
-            className="w-full bg-white border border-slate-300 text-slate-700 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded border border-slate-300 bg-white p-3 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
           />
 
-          <div className="bg-slate-100 border border-slate-300 text-slate-600 dark:bg-slate-700/40 dark:border-slate-600 dark:text-slate-300 text-sm px-3 py-2 rounded mb-3">
+          <div className="mb-3 rounded border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-600 dark:border-slate-600 dark:bg-slate-700/40 dark:text-slate-300">
             💡 Highlight the entity you want to analyze.
           </div>
 
           <div
             ref={containerRef}
             onMouseUp={handleMouseUp}
-            className="bg-slate-50 border border-slate-300 dark:bg-slate-700 dark:border-slate-600 p-4 rounded min-h-[80px] cursor-text mb-2"
+            className="mb-2 min-h-20 cursor-text rounded border border-slate-300 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700"
           >
             {renderText()}
           </div>
 
           {/* Selected Entities */}
           {entities.length > 0 && (
-            <div className="text-xs text-slate-600 dark:text-slate-400 mt-2 flex items-center gap-2 flex-wrap">
-
-              <span>
-                Selected:
-              </span>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span>Selected:</span>
 
               {/* Entity chips */}
               <div className="flex flex-wrap gap-1">
                 {entityTexts.map((ent, i) => (
                   <span
                     key={i}
-                    className="
-                      px-2 py-0.5 rounded-md text-xs
-                      bg-slate-200 text-slate-700
-                      dark:bg-slate-600 dark:text-slate-200
-                    "
+                    className="> bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-200"
                   >
                     {ent}
                   </span>
@@ -339,22 +337,14 @@ const Report = () => {
               </div>
 
               {/* Count badge */}
-              <span
-                className="
-                  ml-1 px-2 py-0.5 rounded text-xs
-                  bg-blue-100 text-blue-700
-                  dark:bg-blue-500/20 dark:text-blue-300
-                "
-              >
+              <span className="ml-1 rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
                 {entities.length}
               </span>
-
             </div>
           )}
 
           {/* CONTROL ROW */}
-          <div className="flex items-end justify-between mt-4">
-
+          <div className="mt-4 flex items-end justify-between">
             {/* LEFT: ACTION BUTTONS */}
             <div className="flex gap-2">
               <button
@@ -364,24 +354,15 @@ const Report = () => {
                   loading
                     ? "Processing..."
                     : entities.length === 0
-                    ? "Select/Highlight at least one entity"
-                    : isSameAsLast
-                    ? "No changes to analyze"
-                    : "Analyze selected entities"
+                      ? "Select/Highlight at least one entity"
+                      : isSameAsLast
+                        ? "No changes to analyze"
+                        : "Analyze selected entities"
                 }
-                className="
-                  bg-blue-600 text-white hover:bg-blue-700
-                  dark:bg-blue-500 dark:hover:bg-blue-600
-
-                  px-4 py-2 rounded text-sm
-                  flex items-center gap-2
-                  transition
-
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
+                className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 {loading && (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                 )}
 
                 {loading ? "Analyzing..." : "Analyze Sentence"}
@@ -389,7 +370,7 @@ const Report = () => {
 
               <button
                 onClick={handleClear}
-                className="bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500 dark:text-white px-3 py-2 rounded text-sm transition"
+                className="rounded bg-slate-200 px-3 py-2 text-sm text-slate-800 transition hover:bg-slate-300 dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
               >
                 Clear
               </button>
@@ -404,26 +385,18 @@ const Report = () => {
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="
-                  bg-white text-slate-700 border border-slate-300
-                  hover:bg-slate-100
-                  dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-600
-                  px-3 py-2 rounded text-sm cursor-pointer
-                  focus:outline-none focus:ring-1 focus:ring-blue-500
-                  transition
-                "
+                className="cursor-pointer rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
               >
                 <option value="model1">RoBERTa</option>
                 <option value="model2">BERT</option>
               </select>
             </div>
-
           </div>
         </div>
 
         {/* 🔥 DUPLICATE MESSAGE */}
         {duplicateMessage?.id && (
-          <div className="mt-3 text-xs px-3 py-2 rounded text-yellow-700 bg-yellow-100 border border-yellow-300 dark:text-yellow-400 dark:bg-yellow-500/10 dark:border-yellow-500/30">
+          <div className="mt-3 rounded border border-yellow-300 bg-yellow-100 px-3 py-2 text-xs text-yellow-700 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-400">
             ⚠️ {duplicateMessage.text} —{" "}
             <span
               onClick={async () => {
@@ -441,28 +414,26 @@ const Report = () => {
                     setTimeout(() => {
                       rowRefs.current[targetId]?.scrollIntoView({
                         behavior: "smooth",
-                        block: "center"
+                        block: "center",
                       });
 
                       setHighlightId(targetId);
                       setTimeout(() => setHighlightId(null), 1500);
-
                     }, 400);
                   } else {
                     rowRefs.current[targetId]?.scrollIntoView({
                       behavior: "smooth",
-                      block: "center"
+                      block: "center",
                     });
 
                     setHighlightId(targetId);
                     setTimeout(() => setHighlightId(null), 1500);
                   }
-
                 } catch (err) {
                   console.error("Jump error:", err);
                 }
               }}
-              className="underline cursor-pointer hover:text-yellow-300"
+              className="cursor-pointer underline hover:text-yellow-300"
             >
               jump to saved result
             </span>
@@ -470,37 +441,35 @@ const Report = () => {
         )}
 
         {/* COMMUNITY */}
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl">
-          <h2 className="text-lg font-semibold mb-2 text-slate-900 dark:text-white">
+        <div className="rounded-2xl bg-white p-6 dark:bg-slate-800">
+          <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
             Community Analyses
           </h2>
 
           {/* 🔹 Total Count */}
-          <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+          <div className="mb-3 text-sm text-slate-600 dark:text-slate-400">
             📊 Total Analyses: {total}
           </div>
 
           {analyses.length === 0 ? (
-            <div className="text-center text-slate-600 dark:text-slate-400 text-sm">
+            <div className="text-center text-sm text-slate-600 dark:text-slate-400">
               No saved analyses yet
             </div>
           ) : (
-            <table className="w-full text-sm border-collapse">
-
+            <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="text-slate-600 dark:text-slate-400 border-b border-slate-300 dark:border-slate-600">
-                  <th className="text-left py-3 px-4">Sentence</th>
-                  <th className="text-center py-3 px-4">Entity</th>
-                  <th className="text-center py-3 px-4">Framing</th>
-                  <th className="text-center py-3 px-4">Model</th>
-                  <th className="text-center py-3 px-4">Date</th>
+                <tr className="border-b border-slate-300 text-slate-600 dark:border-slate-600 dark:text-slate-400">
+                  <th className="px-4 py-3 text-left">Sentence</th>
+                  <th className="px-4 py-3 text-center">Entity</th>
+                  <th className="px-4 py-3 text-center">Framing</th>
+                  <th className="px-4 py-3 text-center">Model</th>
+                  <th className="px-4 py-3 text-center">Date</th>
                 </tr>
               </thead>
 
               <tbody>
                 {analyses.map((a, index) => (
                   <React.Fragment key={a.id}>
-
                     {/* 🔹 Divider BETWEEN analyses (not before first) */}
                     {index !== 0 && (
                       <tr>
@@ -516,57 +485,61 @@ const Report = () => {
                         ref={(el) => {
                           if (i === 0) rowRefs.current[a.id] = el;
                         }}
-                        className={`
-                          bg-white dark:bg-slate-700/50
-                          ${i !== a.entities.length - 1
+                        className={`bg-white dark:bg-slate-700/50 ${
+                          i !== a.entities.length - 1
                             ? "border-b border-slate-200 dark:border-slate-600"
-                            : ""}
-                          ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""}
-                          ${a.id === highlightId
+                            : ""
+                        } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${
+                          a.id === highlightId
                             ? "bg-yellow-100 dark:bg-yellow-500/10"
-                            : ""}
-                        `}
+                            : ""
+                        } `}
                       >
-
                         {/* Sentence */}
                         {i === 0 && (
                           <td
                             rowSpan={a.entities.length}
-                            className="py-4 px-4 align-top max-w-[420px] leading-relaxed space-y-1"
+                            className="max-w-105 space-y-1 px-4 py-4 align-top leading-relaxed"
                           >
                             <div>{a.sentence}</div>
 
-                            <div className="text-xs text-slate-500 mt-1">
-                              Analysis #{(page - 1) * limit + index + 1} • {a.entities.length} entities
+                            <div className="mt-1 text-xs text-slate-500">
+                              Analysis #{(page - 1) * limit + index + 1} •{" "}
+                              {a.entities.length} entities
                             </div>
                           </td>
                         )}
 
                         {/* Entity */}
-                        <td className="py-4 px-4 text-center">
+                        <td className="px-4 py-4 text-center">
                           {e.entity_text}
                         </td>
 
                         {/* Framing */}
-                        <td className="py-4 px-4 text-center">
-                          <span className={`px-2 py-1 rounded text-xs ${colorMap[e.framing_label]}`}>
+                        <td className="px-4 py-4 text-center">
+                          <span
+                            className={`rounded px-2 py-1 text-xs ${colorMap[e.framing_label]}`}
+                          >
                             {e.framing_label}
                           </span>
                         </td>
 
                         {/* Model */}
-                        <td className="py-4 px-4 text-center">
-                          <span className={`px-2 py-1 text-xs rounded ${modelColorMap[a.model] || "bg-gray-500/20 text-gray-300"
-                            }`}>
+                        <td className="px-4 py-4 text-center">
+                          <span
+                            className={`rounded px-2 py-1 text-xs ${
+                              modelColorMap[a.model] ||
+                              "bg-gray-500/20 text-gray-300"
+                            }`}
+                          >
                             {a.model}
                           </span>
                         </td>
 
                         {/* Date */}
-                        <td className="py-4 px-4 text-center text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                        <td className="px-4 py-4 text-center text-xs whitespace-nowrap text-slate-600 dark:text-slate-400">
                           {new Date(a.created_at).toLocaleString()}
                         </td>
-
                       </tr>
                     ))}
                   </React.Fragment>
@@ -576,7 +549,7 @@ const Report = () => {
           )}
 
           {/* 🔹 PAGINATION */}
-          <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400 mt-4">
+          <div className="mt-4 flex justify-between text-sm text-slate-600 dark:text-slate-400">
             <span>
               {total === 0
                 ? "No results"
@@ -585,14 +558,16 @@ const Report = () => {
                   : `Showing ${start}–${end} of ${total}`}
             </span>
 
-            <span>Page {page} of {totalPages}</span>
+            <span>
+              Page {page} of {totalPages}
+            </span>
           </div>
 
-          <div className="flex gap-2 mt-2">
+          <div className="mt-2 flex gap-2">
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+              className="rounded bg-slate-200 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-30 dark:bg-slate-700"
             >
               Prev
             </button>
@@ -600,16 +575,15 @@ const Report = () => {
             <button
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+              className="rounded bg-slate-200 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-30 dark:bg-slate-700"
             >
               Next
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );
-}
+};
 
 export default Report;
