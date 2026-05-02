@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 
 const Report = () => {
-  const API = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.VITE_API_URL + "/api";
 
   const [text, setText] = useState("");
   const [entities, setEntities] = useState([]);
