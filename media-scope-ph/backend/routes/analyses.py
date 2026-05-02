@@ -1,29 +1,21 @@
-from fastapi import APIRouter
-from database import SessionLocal
-from models import Analysis, AnalysisEntity
-from schemas import BatchRequest
-from ml_models import (
-    roberta_model,
-    bert_model,
-    roberta_tokenizer,
-    bert_tokenizer,
-    labels,
-    model_name_map
-)
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import torch
 import re
 
+from database import get_db
+from models import Analysis, AnalysisEntity
+from schemas import BatchRequest
+from ml_models import get_roberta, get_bert, labels, model_name_map
+
 router = APIRouter()
 
-# =========================
-# 🔹 BATCH ANALYZE + SAVE
-# =========================
-@router.post("/analyze-batch")
-def analyze_batch(data: BatchRequest):
-    db = SessionLocal()
 
-    def normalize(text):
+@router.post("/analyze-batch")
+def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
+
+    def normalize(text: str) -> str:
         text = text.lower().strip()
         text = re.sub(r'\s+', ' ', text)
         text = re.sub(r'[^\w\s]', '', text)
@@ -31,7 +23,10 @@ def analyze_batch(data: BatchRequest):
 
     normalized_sentence = normalize(data.sentence)
     normalized_entities = sorted([normalize(e) for e in data.entities])
-    normalized_model = model_name_map[data.model].lower()
+    normalized_model = model_name_map.get(data.model, "").lower()
+
+    if not normalized_model:
+        raise HTTPException(status_code=400, detail="Invalid model selected")
 
     fingerprint = (
         normalized_sentence +
@@ -41,27 +36,20 @@ def analyze_batch(data: BatchRequest):
         normalized_model
     )
 
-    # DEBUG (optional)
-    print("FINGERPRINT:", fingerprint)
-    print("ENTITIES:", data.entities)
-    print("SENTENCE:", repr(data.sentence))
-
     existing = db.query(Analysis).filter(
         Analysis.fingerprint == fingerprint
     ).first()
 
     if existing:
-        result = [
-            {
-                "entity_text": e.entity_text,
-                "framing_label": e.framing_label
-            }
-            for e in existing.entities
-        ]
-        db.close()
         return {
             "analysis_id": existing.id,
-            "results": result,
+            "results": [
+                {
+                    "entity_text": e.entity_text,
+                    "framing_label": e.framing_label
+                }
+                for e in existing.entities
+            ],
             "message": "Duplicate analysis"
         }
 
@@ -81,58 +69,59 @@ def analyze_batch(data: BatchRequest):
             Analysis.fingerprint == fingerprint
         ).first()
 
-        result = [
-            {
-                "entity_text": e.entity_text,
-                "framing_label": e.framing_label
-            }
-            for e in existing.entities
-        ]
-        db.close()
         return {
             "analysis_id": existing.id,
-            "results": result,
+            "results": [
+                {
+                    "entity_text": e.entity_text,
+                    "framing_label": e.framing_label
+                }
+                for e in existing.entities
+            ],
             "message": "Duplicate prevented (DB constraint)"
         }
 
+    if data.model == "model1":
+        model, tokenizer = get_roberta()
+    elif data.model == "model2":
+        model, tokenizer = get_bert()
+    else:
+        raise HTTPException(status_code=400, detail="Invalid model selected")
+
     results = []
 
-    for entity in data.entities:
+    try:
+        for entity in data.entities:
+            inputs = tokenizer(
+                data.sentence,
+                entity,
+                return_tensors="pt",
+                truncation=True,
+                max_length=160
+            ).to(next(model.parameters()).device)
 
-        if data.model == "model1":
-            model = roberta_model
-            tokenizer = roberta_tokenizer
-        else:
-            model = bert_model
-            tokenizer = bert_tokenizer
+            with torch.no_grad():
+                outputs = model(**inputs)
+                pred = torch.argmax(outputs.logits, dim=1).item()
 
-        inputs = tokenizer(
-            data.sentence,
-            entity,
-            return_tensors="pt",
-            truncation=True,
-            max_length=160
-        ).to(next(model.parameters()).device)
+            label = labels[pred]
 
-        with torch.no_grad():
-            outputs = model(**inputs)
-            pred = torch.argmax(outputs.logits, dim=1).item()
+            db.add(AnalysisEntity(
+                analysis_id=analysis.id,
+                entity_text=entity,
+                framing_label=label
+            ))
 
-        label = labels[pred]
+            results.append({
+                "entity_text": entity,
+                "framing_label": label
+            })
 
-        db.add(AnalysisEntity(
-            analysis_id=analysis.id,
-            entity_text=entity,
-            framing_label=label
-        ))
+        db.commit()
 
-        results.append({
-            "entity_text": entity,
-            "framing_label": label
-        })
-
-    db.commit()
-    db.close()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
     return {
         "analysis_id": analysis.id,
@@ -140,12 +129,8 @@ def analyze_batch(data: BatchRequest):
     }
 
 
-# =========================
-# 🔹 GET ANALYSES
-# =========================
 @router.get("/analyses")
-def get_analyses(page: int = 1, limit: int = 5):
-    db = SessionLocal()
+def get_analyses(page: int = 1, limit: int = 5, db: Session = Depends(get_db)):
 
     total = db.query(Analysis).count()
 
@@ -174,8 +159,6 @@ def get_analyses(page: int = 1, limit: int = 5):
             ]
         })
 
-    db.close()
-
     return {
         "total": total,
         "page": page,
@@ -184,22 +167,20 @@ def get_analyses(page: int = 1, limit: int = 5):
     }
 
 
-# =========================
-# 🔹 GET PAGE OF ANALYSIS
-# =========================
 @router.get("/analysis-page/{analysis_id}")
-def get_analysis_page(analysis_id: int):
-    db = SessionLocal()
+def get_analysis_page(analysis_id: int, db: Session = Depends(get_db)):
 
-    newer_count = db.query(Analysis).filter(
-        Analysis.created_at > db.query(Analysis.created_at)
+    created_at_subquery = (
+        db.query(Analysis.created_at)
         .filter(Analysis.id == analysis_id)
         .scalar_subquery()
+    )
+
+    newer_count = db.query(Analysis).filter(
+        Analysis.created_at > created_at_subquery
     ).count()
 
     limit = 5
     page = (newer_count // limit) + 1
-
-    db.close()
 
     return {"page": page}
