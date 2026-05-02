@@ -12,10 +12,14 @@ app = FastAPI()
 def on_startup():
     Base.metadata.create_all(bind=engine)
 
-# CORS (env-based)
+# CORS (support multiple origins)
 origins = [
-    os.getenv("FRONTEND_URL", "http://localhost:5173")
+    "http://localhost:5173",  # local dev
+    os.getenv("FRONTEND_URL")  # production (Vercel)
 ]
+
+# Remove None values (important)
+origins = [origin for origin in origins if origin]
 
 app.add_middleware(
     CORSMiddleware,
