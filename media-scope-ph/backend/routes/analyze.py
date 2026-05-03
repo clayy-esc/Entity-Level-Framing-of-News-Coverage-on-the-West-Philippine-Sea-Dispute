@@ -4,35 +4,48 @@ from schemas import Input
 
 router = APIRouter()
 
-HF_URL = "https://unknownaut-entity-framing-api.hf.space/run/predict"
+# ✅ Correct FastAPI endpoint
+HF_URL = "https://unknownaut-entity-framing-api.hf.space/predict"
+
+# ✅ Model mapping
+model_map = {
+    "model1": "RoBERTa",
+    "model2": "BERT"
+}
 
 
 @router.post("/analyze")
 def analyze(input: Input):
 
     try:
+        mapped_model = model_map.get(input.model)
+
+        if not mapped_model:
+            raise HTTPException(status_code=400, detail="Invalid model")
+
         response = requests.post(
             HF_URL,
             json={
-                "data": [
-                    input.sentence,
-                    input.entity_text,
-                    input.model  # model1 / model2
-                ]
+                "sentence": input.sentence,
+                "entity": input.entity_text,
+                "model": mapped_model
             },
             timeout=10
         )
 
+        print("HF STATUS:", response.status_code)
+        print("HF RESPONSE:", response.text)
+
         if response.status_code != 200:
-            raise HTTPException(status_code=500, detail="Model service failed")
+            raise HTTPException(status_code=500, detail=response.text)
 
         result = response.json()
 
         return {
             "sentence": input.sentence,
             "entity_text": input.entity_text,
-            "framing_label": result["data"][0],
-            "model": input.model
+            "framing_label": result["label"],  # ✅ FIXED
+            "model": mapped_model
         }
 
     except requests.exceptions.Timeout:

@@ -25,18 +25,24 @@ class BatchRequest(BaseModel):
     @field_validator("sentence")
     @classmethod
     def validate_sentence(cls, v: str):
-        if not v.strip():
+        v = v.strip()
+        if not v:
             raise ValueError("Sentence cannot be empty")
         return v
 
     @field_validator("entities")
     @classmethod
     def validate_entities(cls, v: List[str]):
+        cleaned = []
         for entity in v:
-            if not entity.strip():
+            entity = entity.strip()
+
+            if not entity:
                 raise ValueError("Entity cannot be empty")
 
             if len(entity) > 200:
                 raise ValueError("Entity too long (max 200 chars)")
 
-        return v
+            cleaned.append(entity)
+
+        return cleaned

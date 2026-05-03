@@ -10,19 +10,30 @@ from schemas import BatchRequest
 
 router = APIRouter()
 
-HF_URL = "https://unknownaut-entity-framing-api.hf.space/run/predict"
+HF_URL = "https://unknownaut-entity-framing-api.hf.space/predict"
+
+model_map = {
+    "model1": "RoBERTa",
+    "model2": "BERT"
+}
 
 
 @router.post("/analyze-batch")
 def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
-    # 🔥 LIMIT BATCH SIZE
+    # ✅ Limit entities
     if len(data.entities) > 5:
         raise HTTPException(
             status_code=400,
             detail="Maximum of 5 entities allowed per request"
         )
 
+    # 🔥 Map model FIRST (FIXED)
+    mapped_model = model_map.get(data.model)
+    if not mapped_model:
+        raise HTTPException(status_code=400, detail="Invalid model selected")
+
+    # 🔍 Normalize for fingerprint
     def normalize(text: str) -> str:
         text = text.lower().strip()
         text = re.sub(r'\s+', ' ', text)
@@ -31,14 +42,14 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
     normalized_sentence = normalize(data.sentence)
     normalized_entities = sorted([normalize(e) for e in data.entities])
-    normalized_model = data.model.lower()
 
+    # ✅ Use mapped_model (FIXED)
     fingerprint = (
         normalized_sentence +
         "|" +
         ",".join(normalized_entities) +
         "|" +
-        normalized_model
+        mapped_model
     )
 
     # 🔍 Check duplicate
@@ -59,10 +70,10 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "Duplicate analysis"
         }
 
-    # 🆕 Create new analysis
+    # 🆕 Create new analysis (FIXED)
     analysis = Analysis(
         sentence=data.sentence,
-        model=data.model,
+        model=mapped_model,
         fingerprint=fingerprint
     )
 
@@ -88,7 +99,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "Duplicate prevented (DB constraint)"
         }
 
-    # 🔥 CALL HF SPACE (one per entity for now)
+    # 🔥 CALL HF API
     results = []
 
     try:
@@ -96,19 +107,20 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             response = requests.post(
                 HF_URL,
                 json={
-                    "data": [
-                        data.sentence,
-                        entity,
-                        data.model
-                    ]
+                    "sentence": data.sentence,
+                    "entity": entity,
+                    "model": mapped_model
                 },
                 timeout=10
             )
 
-            if response.status_code != 200:
-                raise HTTPException(status_code=500, detail="Model service failed")
+            print("HF STATUS:", response.status_code)
+            print("HF RESPONSE:", response.text)
 
-            label = response.json()["data"][0]
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail=response.text)
+
+            label = response.json()["label"]
 
             db.add(AnalysisEntity(
                 analysis_id=analysis.id,
@@ -129,6 +141,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
     except Exception as e:
         db.rollback()
+        print("🔥 ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
     return {
