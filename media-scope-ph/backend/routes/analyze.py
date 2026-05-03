@@ -1,25 +1,25 @@
 from fastapi import APIRouter, HTTPException
 import torch
 from schemas import Input
-from ml_models import (
-    get_roberta,
-    get_bert,
-    labels,
-    model_name_map
-)
+from ml_models import load_model, labels, model_name_map
 
 router = APIRouter()
 
 @router.post("/analyze")
 def analyze(input: Input):
 
-    # 🔥 Lazy model selection
-    if input.model == "model1":
-        model, tokenizer = get_roberta()
-    elif input.model == "model2":
-        model, tokenizer = get_bert()
-    else:
+    try:
+        # ✅ SAFE MODEL SWITCHING
+        model, tokenizer = load_model(input.model)
+
+        # 🔥 memory cleanup (important)
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    except ValueError:
         raise HTTPException(status_code=400, detail="Invalid model selected")
+
     try:
         inputs = tokenizer(
             input.sentence,
@@ -29,7 +29,7 @@ def analyze(input: Input):
             max_length=160
         ).to(next(model.parameters()).device)
 
-        with torch.no_grad():
+        with torch.inference_mode():
             outputs = model(**inputs)
             pred = torch.argmax(outputs.logits, dim=1).item()
 

@@ -7,13 +7,20 @@ import re
 from database import get_db
 from models import Analysis, AnalysisEntity
 from schemas import BatchRequest
-from ml_models import get_roberta, get_bert, labels, model_name_map
+from ml_models import load_model, labels, model_name_map
 
 router = APIRouter()
 
 
 @router.post("/analyze-batch")
 def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
+
+    # 🔥 LIMIT BATCH SIZE (add this here)
+    if len(data.entities) > 5:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum of 5 entities allowed per request"
+        )
 
     def normalize(text: str) -> str:
         text = text.lower().strip()
@@ -81,11 +88,13 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "Duplicate prevented (DB constraint)"
         }
 
-    if data.model == "model1":
-        model, tokenizer = get_roberta()
-    elif data.model == "model2":
-        model, tokenizer = get_bert()
-    else:
+    try:
+        model, tokenizer = load_model(data.model)
+
+        if torch.cuda.is_available():
+            torch.cuda.empty()
+
+    except ValueError:
         raise HTTPException(status_code=400, detail="Invalid model selected")
 
     results = []
@@ -100,7 +109,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
                 max_length=160
             ).to(next(model.parameters()).device)
 
-            with torch.no_grad():
+            with torch.inference_mode():
                 outputs = model(**inputs)
                 pred = torch.argmax(outputs.logits, dim=1).item()
 
