@@ -1,21 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-import torch
+import requests
 import re
 
 from database import get_db
 from models import Analysis, AnalysisEntity
 from schemas import BatchRequest
-from ml_models import load_model, labels, model_name_map
 
 router = APIRouter()
+
+HF_URL = "https://unknownaut-entity-framing-api.hf.space/run/predict"
 
 
 @router.post("/analyze-batch")
 def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
-    # 🔥 LIMIT BATCH SIZE (add this here)
+    # 🔥 LIMIT BATCH SIZE
     if len(data.entities) > 5:
         raise HTTPException(
             status_code=400,
@@ -30,10 +31,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
     normalized_sentence = normalize(data.sentence)
     normalized_entities = sorted([normalize(e) for e in data.entities])
-    normalized_model = model_name_map.get(data.model, "").lower()
-
-    if not normalized_model:
-        raise HTTPException(status_code=400, detail="Invalid model selected")
+    normalized_model = data.model.lower()
 
     fingerprint = (
         normalized_sentence +
@@ -43,6 +41,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
         normalized_model
     )
 
+    # 🔍 Check duplicate
     existing = db.query(Analysis).filter(
         Analysis.fingerprint == fingerprint
     ).first()
@@ -60,9 +59,10 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "Duplicate analysis"
         }
 
+    # 🆕 Create new analysis
     analysis = Analysis(
         sentence=data.sentence,
-        model=model_name_map[data.model],
+        model=data.model,
         fingerprint=fingerprint
     )
 
@@ -88,32 +88,27 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "Duplicate prevented (DB constraint)"
         }
 
-    try:
-        model, tokenizer = load_model(data.model)
-
-        if torch.cuda.is_available():
-            torch.cuda.empty()
-
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid model selected")
-
+    # 🔥 CALL HF SPACE (one per entity for now)
     results = []
 
     try:
         for entity in data.entities:
-            inputs = tokenizer(
-                data.sentence,
-                entity,
-                return_tensors="pt",
-                truncation=True,
-                max_length=160
-            ).to(next(model.parameters()).device)
+            response = requests.post(
+                HF_URL,
+                json={
+                    "data": [
+                        data.sentence,
+                        entity,
+                        data.model
+                    ]
+                },
+                timeout=10
+            )
 
-            with torch.inference_mode():
-                outputs = model(**inputs)
-                pred = torch.argmax(outputs.logits, dim=1).item()
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail="Model service failed")
 
-            label = labels[pred]
+            label = response.json()["data"][0]
 
             db.add(AnalysisEntity(
                 analysis_id=analysis.id,
@@ -127,6 +122,10 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             })
 
         db.commit()
+
+    except requests.exceptions.Timeout:
+        db.rollback()
+        raise HTTPException(status_code=504, detail="Model service timeout")
 
     except Exception as e:
         db.rollback()

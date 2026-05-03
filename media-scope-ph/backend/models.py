@@ -9,8 +9,12 @@ class Analysis(Base):
     id = Column(Integer, primary_key=True, index=True)
     sentence = Column(Text, nullable=False)
     model = Column(String(50), nullable=False)
-    fingerprint = Column(String, unique=True, index=True, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    fingerprint = Column(String(255), unique=True, index=True, nullable=False)
+    created_at = Column(
+        TIMESTAMP(timezone=True),
+        server_default=func.now(),
+        index=True
+    )
 
     entities = relationship(
         "AnalysisEntity",

@@ -4,14 +4,12 @@ import os
 
 from database import engine, Base
 from routes import analyze, analyses
-from ml_models import print_memory
 
 app = FastAPI()
 
 # Startup event (better than running globally)
 @app.on_event("startup")
 def on_startup():
-    print_memory("startup (FastAPI + Python only)")
     Base.metadata.create_all(bind=engine)
 
 # CORS (support multiple origins)

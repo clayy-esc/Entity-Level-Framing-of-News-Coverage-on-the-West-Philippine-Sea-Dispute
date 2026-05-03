@@ -19,7 +19,7 @@ class Input(BaseModel):
 
 class BatchRequest(BaseModel):
     sentence: str = Field(..., min_length=1, max_length=1000)
-    entities: List[str] = Field(..., min_length=1)
+    entities: List[str] = Field(..., min_length=1, max_length=5)  # 🔥 added limit
     model: ModelType
 
     @field_validator("sentence")
@@ -32,9 +32,6 @@ class BatchRequest(BaseModel):
     @field_validator("entities")
     @classmethod
     def validate_entities(cls, v: List[str]):
-        if len(v) == 0:
-            raise ValueError("Entities list cannot be empty")
-
         for entity in v:
             if not entity.strip():
                 raise ValueError("Entity cannot be empty")
