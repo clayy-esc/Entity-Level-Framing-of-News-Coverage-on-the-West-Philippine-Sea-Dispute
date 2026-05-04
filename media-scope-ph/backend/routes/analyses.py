@@ -49,7 +49,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
         "|" +
         ",".join(normalized_entities) +
         "|" +
-        mapped_model
+        mapped_model.lower()
     )
 
     # 🔍 Check duplicate
@@ -67,7 +67,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
                 }
                 for e in existing.entities
             ],
-            "message": "Duplicate analysis"
+            "message": "duplicate"
         }
 
     # 🆕 Create new analysis (FIXED)
@@ -96,7 +96,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
                 }
                 for e in existing.entities
             ],
-            "message": "Duplicate prevented (DB constraint)"
+            "message": "duplicate"
         }
 
     # 🔥 CALL HF API

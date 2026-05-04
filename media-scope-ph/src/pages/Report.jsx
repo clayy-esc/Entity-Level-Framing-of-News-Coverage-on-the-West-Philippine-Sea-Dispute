@@ -26,6 +26,8 @@ const Report = () => {
   const rowRefs = useRef({});
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const tableRef = useRef(null);
+  const isFirstRender = useRef(true);
 
   const containerRef = useRef(null);
   const lastAnalysisRef = useRef(null);
@@ -78,6 +80,19 @@ const Report = () => {
 
   useEffect(() => {
     fetchAnalyses();
+  }, [page]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    tableRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+
   }, [page]);
 
   // =========================
@@ -191,7 +206,7 @@ const Report = () => {
       setResults(enriched);
 
       // HANDLE NEW vs DUPLICATE
-      if (data.message) {
+      if (data.message === "duplicate") {
         // duplicate case
         setDuplicateMessage({
           text: "Already analyzed",
@@ -304,19 +319,10 @@ const Report = () => {
     let bValue;
 
     switch (sortConfig.key) {
-      case "sentence":
-        aValue = a.sentence || "";
-        bValue = b.sentence || "";
-        break;
 
       case "entity":
         aValue = a.entities?.[0]?.entity_text || "";
         bValue = b.entities?.[0]?.entity_text || "";
-        break;
-
-      case "framing":
-        aValue = a.entities?.[0]?.framing_label || "";
-        bValue = b.entities?.[0]?.framing_label || "";
         break;
 
       case "model":
@@ -539,14 +545,16 @@ const Report = () => {
                 No saved analyses yet
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div ref={tableRef} className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
 
                   {/* HEADER */}
-                  <thead className="sticky top-0 z-10 backdrop-blur 
-  bg-slate-100/80 dark:bg-slate-800/70 
-  text-slate-700 dark:text-slate-300 
-  text-xs tracking-wide">
+                  <thead
+                    className="sticky top-0 z-10 backdrop-blur 
+                    bg-slate-100/80 dark:bg-slate-800/70 
+                    text-slate-700 dark:text-slate-300 
+                    text-xs tracking-wide"
+                  >
 
                     <tr className="border-b border-slate-200/60 dark:border-slate-700/60">
 
