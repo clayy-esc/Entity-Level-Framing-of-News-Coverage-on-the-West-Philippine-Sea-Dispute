@@ -5,6 +5,8 @@ import {
   Users,
   BarChart,
   AlertTriangle,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 
 const Report = () => {
@@ -252,11 +254,10 @@ const Report = () => {
           key={i}
           onClick={() => handleDelete(originalIndex)}
           title="Click to remove"
-          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${
-            result
-              ? colorMap[result.framing_label]
-              : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
-          } hover:ring-2 hover:ring-red-400`}
+          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${result
+            ? colorMap[result.framing_label]
+            : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
+            } hover:ring-2 hover:ring-red-400`}
         >
           {entityText}
           <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 group-hover:opacity-100">
@@ -279,6 +280,63 @@ const Report = () => {
   const end = Math.min(page * limit, total);
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
+  const [sortConfig, setSortConfig] = useState({
+    key: "date",
+    direction: "desc",
+  });
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return {
+          key,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const sortedAnalyses = [...analyses].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+
+    let aValue;
+    let bValue;
+
+    switch (sortConfig.key) {
+      case "sentence":
+        aValue = a.sentence || "";
+        bValue = b.sentence || "";
+        break;
+
+      case "entity":
+        aValue = a.entities?.[0]?.entity_text || "";
+        bValue = b.entities?.[0]?.entity_text || "";
+        break;
+
+      case "framing":
+        aValue = a.entities?.[0]?.framing_label || "";
+        bValue = b.entities?.[0]?.framing_label || "";
+        break;
+
+      case "model":
+        aValue = a.model || "";
+        bValue = b.model || "";
+        break;
+
+      case "date":
+        aValue = new Date(a.created_at);
+        bValue = new Date(b.created_at);
+        break;
+
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
   return (
     <main className="flex-1">
       <div className="flex flex-col items-center justify-center">
@@ -318,7 +376,8 @@ const Report = () => {
               className="w-full cursor-text rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-700 transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             />
 
-            <div className="mb-3 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <div className="mb-3 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+
               <Lightbulb
                 size={16}
                 className="text-blue-600 dark:text-blue-400"
@@ -471,10 +530,7 @@ const Report = () => {
 
             {/* Total Count */}
             <div className="mb-3 flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
-              <BarChart
-                size={16}
-                className="text-blue-600 dark:text-blue-400"
-              />
+              <BarChart size={16} className="text-blue-600 dark:text-blue-400" />
               Total Analyses: {total}
             </div>
 
@@ -483,36 +539,97 @@ const Report = () => {
                 No saved analyses yet
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                <table className="w-full border-collapse divide-y divide-slate-200 text-sm dark:divide-slate-700">
-                  <thead className="bg-slate-50 dark:bg-slate-800">
-                    <tr className="border-b border-slate-200 text-slate-900 dark:border-slate-700 dark:text-slate-100">
-                      <th className="px-4 py-3 text-left font-medium">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+
+                  {/* HEADER */}
+                  <thead className="sticky top-0 z-10 backdrop-blur 
+  bg-slate-100/80 dark:bg-slate-800/70 
+  text-slate-700 dark:text-slate-300 
+  text-xs tracking-wide">
+
+                    <tr className="border-b border-slate-200/60 dark:border-slate-700/60">
+
+                      {/* Sentence (no sort) */}
+                      <th className="px-4 py-3 text-left font-semibold">
                         Sentence
                       </th>
-                      <th className="px-4 py-3 text-center font-medium">
-                        Entity
+
+                      {/* Entity */}
+                      <th
+                        onClick={() => handleSort("entity")}
+                        className="px-4 py-3 text-center font-semibold cursor-pointer hover:text-blue-500"
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          Entity
+                          {sortConfig.key === "entity" ? (
+                            sortConfig.direction === "asc" ? (
+                              <ArrowUp size={14} />
+                            ) : (
+                              <ArrowDown size={14} />
+                            )
+                          ) : (
+                            <ArrowUp size={14} className="opacity-20" />
+                          )}
+                        </div>
                       </th>
-                      <th className="px-4 py-3 text-center font-medium">
+
+                      {/* Framing (no sort) */}
+                      <th className="px-4 py-3 text-center font-semibold">
                         Framing
                       </th>
-                      <th className="px-4 py-3 text-center font-medium">
-                        Model
+
+                      {/* Model */}
+                      <th
+                        onClick={() => handleSort("model")}
+                        className="px-4 py-3 text-center font-semibold cursor-pointer hover:text-blue-500"
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          Model
+                          {sortConfig.key === "model" ? (
+                            sortConfig.direction === "asc" ? (
+                              <ArrowUp size={14} />
+                            ) : (
+                              <ArrowDown size={14} />
+                            )
+                          ) : (
+                            <ArrowUp size={14} className="opacity-20" />
+                          )}
+                        </div>
                       </th>
-                      <th className="px-4 py-3 text-center font-medium">
-                        Date
+
+                      {/* Date */}
+                      <th
+                        onClick={() => handleSort("date")}
+                        className="px-4 py-3 text-center font-semibold cursor-pointer hover:text-blue-500"
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          Date
+                          {sortConfig.key === "date" ? (
+                            sortConfig.direction === "asc" ? (
+                              <ArrowUp size={14} />
+                            ) : (
+                              <ArrowDown size={14} />
+                            )
+                          ) : (
+                            <ArrowUp size={14} className="opacity-20" />
+                          )}
+                        </div>
                       </th>
+
                     </tr>
                   </thead>
 
+                  {/* BODY */}
                   <tbody>
-                    {analyses.map((a, index) => (
+                    {sortedAnalyses.map((a, index) => (
                       <React.Fragment key={a.id}>
-                        {/* Divider BETWEEN analyses (not before first) */}
+
+                        {/* Section Divider */}
                         {index !== 0 && (
                           <tr>
                             <td colSpan={5} className="py-2">
-                              <div className="h-px bg-slate-600/20"></div>
+                              <div className="h-px bg-slate-300/40 dark:bg-slate-600/30"></div>
                             </td>
                           </tr>
                         )}
@@ -523,16 +640,16 @@ const Report = () => {
                             ref={(el) => {
                               if (i === 0) rowRefs.current[a.id] = el;
                             }}
-                            className={`bg-white dark:bg-slate-700/50 ${
-                              i !== a.entities.length - 1
+                            className={`bg-white dark:bg-slate-700/50 
+                    ${i !== a.entities.length - 1
                                 ? "border-b border-slate-200 dark:border-slate-600"
-                                : ""
-                            } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${
-                              a.id === highlightId
+                                : ""} 
+                    ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} 
+                    ${a.id === highlightId
                                 ? "bg-yellow-100 dark:bg-yellow-500/10"
-                                : ""
-                            } `}
+                                : ""}`}
                           >
+
                             {/* Sentence */}
                             {i === 0 && (
                               <td
@@ -565,10 +682,9 @@ const Report = () => {
                             {/* Model */}
                             <td className="px-4 py-4 text-center">
                               <span
-                                className={`rounded px-2 py-1 text-xs ${
-                                  modelColorMap[a.model] ||
+                                className={`rounded px-2 py-1 text-xs ${modelColorMap[a.model] ||
                                   "bg-gray-500/20 text-gray-300"
-                                }`}
+                                  }`}
                               >
                                 {a.model}
                               </span>
