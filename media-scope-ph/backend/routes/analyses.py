@@ -73,7 +73,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
     # 🆕 Create new analysis (FIXED)
     analysis = Analysis(
         sentence=data.sentence,
-        model=mapped_model,
+        model=mapped_model.lower(),
         fingerprint=fingerprint
     )
 

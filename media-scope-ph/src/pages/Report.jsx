@@ -176,6 +176,11 @@ const Report = () => {
     lastAnalysisRef.current &&
     JSON.stringify(lastAnalysisRef.current) === currentPayload;
 
+  const wordCount =
+    text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+
+  const isTooLong = wordCount > 120;
+
   // =========================
   // ANALYZE (BATCH)
   // =========================
@@ -243,7 +248,6 @@ const Report = () => {
     setResults([]);
     lastAnalysisRef.current = null;
     setDuplicateMessage(null);
-    setPage(1);
   };
 
   // =========================
@@ -379,8 +383,34 @@ const Report = () => {
                 setDuplicateMessage(null);
               }}
               placeholder="Enter a sentence..."
-              className="w-full cursor-text rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-700 transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className={`w-full cursor-text rounded-md border p-3 text-sm transition focus:ring-1 focus:outline-none
+                ${isTooLong
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                  : "border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                }
+                bg-white text-slate-700
+                dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700
+              `}
             />
+
+            <div className="mt-2 mb-3 space-y-1">
+              <p
+                className={`text-xs ${isTooLong
+                    ? "text-red-500"
+                    : wordCount > 100
+                      ? "text-yellow-500"
+                      : "text-slate-500"
+                  }`}
+              >
+                {wordCount} / <span className="font-semibold">120</span> words
+              </p>
+
+              {isTooLong && (
+                <p className="text-xs text-red-500">
+                  Input exceeds recommended length. The model may truncate the sentence, which can affect accuracy.
+                </p>
+              )}
+            </div>
 
             <div className="mb-3 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
 
@@ -429,15 +459,17 @@ const Report = () => {
               <div className="flex gap-2">
                 <button
                   onClick={handleAnalyze}
-                  disabled={loading || entities.length === 0 || isSameAsLast}
+                  disabled={loading || entities.length === 0 || isSameAsLast || isTooLong}
                   title={
                     loading
                       ? "Processing..."
-                      : entities.length === 0
-                        ? "Select/Highlight at least one entity"
-                        : isSameAsLast
-                          ? "No changes to analyze"
-                          : "Analyze selected entities"
+                      : isTooLong
+                        ? "Text too long (max 120 words for accurate analysis)"
+                        : entities.length === 0
+                          ? "Select/Highlight at least one entity"
+                          : isSameAsLast
+                            ? "No changes to analyze"
+                            : "Analyze selected entities"
                   }
                   className="flex cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >
