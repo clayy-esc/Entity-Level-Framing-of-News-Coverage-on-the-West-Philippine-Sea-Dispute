@@ -108,7 +108,7 @@ const Table = ({ data }) => {
             View by:
           </label>
           <select
-            className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            className="cursor-pointer rounded-md border border-slate-300 bg-white px-2 py-1 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
             value={groupBy}
             onChange={(e) => {
               setGroupBy(e.target.value);
@@ -157,9 +157,7 @@ const Table = ({ data }) => {
                   </td>
                   {groupBy === "sentence" && (
                     <td className="w-1/2 px-4 py-3 align-top text-slate-600 dark:text-slate-300">
-                      <div className="line-clamp-3" title={row.sentence}>
-                        {row.sentence}
-                      </div>
+                      <div>{row.sentence}</div>
                     </td>
                   )}
                   {groupBy === "article" ? (

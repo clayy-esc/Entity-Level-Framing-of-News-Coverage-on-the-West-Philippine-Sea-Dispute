@@ -398,10 +398,10 @@ const Coverage = () => {
                   type="button"
                   role="switch"
                   aria-checked={useGeneralizedEntities}
-                  className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-medium transition ${
+                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-2 py-1 text-xs font-medium transition ${
                     useGeneralizedEntities
-                      ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                      : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                      ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                      : "bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
                   }`}
                   onClick={() => {
                     setUseGeneralizedEntities((previous) => !previous);
@@ -411,7 +411,7 @@ const Coverage = () => {
                   <span
                     className={`inline-block h-2.5 w-2.5 rounded-full ${
                       useGeneralizedEntities
-                        ? "bg-emerald-400"
+                        ? "bg-white"
                         : "bg-slate-500 dark:bg-slate-300"
                     }`}
                   />
@@ -420,7 +420,7 @@ const Coverage = () => {
               </div>
               {useGeneralizedEntities ? (
                 <select
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                  className="w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-800"
                   value={selectedEntity}
                   onChange={(event) => setSelectedEntity(event.target.value)}
                 >
@@ -436,7 +436,7 @@ const Coverage = () => {
                   <input
                     type="text"
                     list="entity-options"
-                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    className="w-full cursor-text rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-800"
                     placeholder="Search entity (empty for all)"
                     value={selectedEntity === "All" ? "" : selectedEntity}
                     onChange={(event) => {
@@ -459,7 +459,7 @@ const Coverage = () => {
             <div className="space-y-1">
               <label className="block text-sm font-medium">Entity Label</label>
               <select
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-800"
                 value={selectedEntityLabel}
                 onChange={(event) => setSelectedEntityLabel(event.target.value)}
               >
@@ -476,7 +476,7 @@ const Coverage = () => {
             <div className="space-y-1">
               <label className="block text-sm font-medium">News Outlet</label>
               <select
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-800"
                 value={selectedOutlet}
                 onChange={(event) => setSelectedOutlet(event.target.value)}
               >
@@ -495,7 +495,7 @@ const Coverage = () => {
                 <label className="block text-sm font-medium">Start Date</label>
                 <input
                   type="date"
-                  className="date-picker-input w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                  className="date-picker-input w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                   min={datasetMinDate || undefined}
                   max={endDate || datasetMaxDate || undefined}
                   value={startDate}
@@ -506,7 +506,7 @@ const Coverage = () => {
                 <label className="block text-sm font-medium">End Date</label>
                 <input
                   type="date"
-                  className="date-picker-input w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                  className="date-picker-input w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                   min={startDate || datasetMinDate || undefined}
                   max={datasetMaxDate || undefined}
                   value={endDate}
@@ -518,7 +518,7 @@ const Coverage = () => {
             {/* Restores default filters to full-dataset scope. */}
             <button
               type="button"
-              className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
+              className="w-full cursor-pointer rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               onClick={() => {
                 setSelectedEntity("All");
                 setSelectedEntityLabel("All");
