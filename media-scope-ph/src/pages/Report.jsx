@@ -133,6 +133,12 @@ const Report = () => {
     const range = selection.getRangeAt(0);
     const selectedText = selection.toString();
 
+    // 🚫 NEW: prevent empty or whitespace-only selections
+    if (!selectedText || selectedText.trim().length === 0) {
+      selection.removeAllRanges();
+      return;
+    }
+
     const preRange = range.cloneRange();
     preRange.selectNodeContents(containerRef.current);
     preRange.setEnd(range.startContainer, range.startOffset);
@@ -143,6 +149,13 @@ const Report = () => {
     const snapped = snapToToken(start, end);
     start = snapped.start;
     end = snapped.end;
+
+    // 🚫 EXTRA SAFETY: check again after snapping
+    const snappedText = text.slice(start, end);
+    if (!snappedText.trim()) {
+      selection.removeAllRanges();
+      return;
+    }
 
     if (isOverlapping(start, end)) {
       selection.removeAllRanges();
@@ -396,10 +409,10 @@ const Report = () => {
             <div className="mt-2 mb-3 space-y-1">
               <p
                 className={`text-xs ${isTooLong
-                    ? "text-red-500"
-                    : wordCount > 100
-                      ? "text-yellow-500"
-                      : "text-slate-500"
+                  ? "text-red-500"
+                  : wordCount > 100
+                    ? "text-yellow-500"
+                    : "text-slate-500"
                   }`}
               >
                 {wordCount} / <span className="font-semibold">120</span> words

@@ -1,4 +1,4 @@
-import { Target, Lightbulb, Calculator, Users } from "lucide-react";
+import { Target, Lightbulb, Info, Users } from "lucide-react";
 import adams from "../assets/thesis-members/adams.svg";
 import clarence from "../assets/thesis-members/clarence.svg";
 import jonathan from "../assets/thesis-members/jonathan.svg";
@@ -27,27 +27,25 @@ const About = () => {
       <div className="flex flex-col items-center justify-center">
         <div className="w-5/6 md:w-3/5">
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            About the Project
+            About the System
           </h1>
-          <p>Understanding media sentiment across Philippine news outlets</p>
+          <p>Exploring how news articles portray key actors in the West Philippine Sea dispute through entity-level framing analysis</p>
         </div>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <div className="flex items-center gap-2">
             <Target size={16} className="text-blue-700 dark:text-blue-300" />
             <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
-              Project Purpose
+              System Overview
             </h2>
           </div>
           <p>
-            This system provides entity-level sentiment analysis across multiple
-            Philippine news outlets, enabling users to understand how different
-            media sources portray specific entities such as political figures,
-            organizations, and countries.
+            This system is an Entity-Level Framing and Cross-Media Analysis platform designed to help users understand how news articles portray key actors involved in the West Philippine Sea dispute.
           </p>
           <p>
-            By comparing sentiment across news outlets, researchers,
-            journalists, and citizens can gain insights into media bias,
-            reporting patterns, and the evolution of public discourse over time.
+            Instead of simply identifying whether a news article is positive or negative, the system focuses on how specific entities such as countries, government agencies, and organizations are represented within individual sentences.
+          </p>
+          <p>
+            By analyzing these portrayals, the platform allows users to see how narratives are constructed and how different actors are positioned in news reporting.
           </p>
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
@@ -57,34 +55,26 @@ const About = () => {
               className="fill-blue-700 text-blue-700 dark:fill-blue-300 dark:text-blue-300"
             />
             <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
-              Why Entity-Level Sentiment Analysis
+              Purpose of the System
             </h2>
           </div>
           <p>
-            Traditional sentiment analysis examines overall article tone, but
-            entity-level analysis provides more granular insights by determining
-            how specific entities are portrayed within the same article.
+            The purpose of this system is to provide a more detailed and systematic way of analyzing news coverage, particularly in complex geopolitical issues.
           </p>
           <p>
-            For example, a single article may express positive sentiment toward
-            one political figure while expressing negative sentiment toward
-            another. This nuanced approach reveals how media outlets frame
-            different actors in complex political narratives.
+            News reporting often appears neutral, but the way actions are described and attributed can influence how readers perceive different actors. This system helps uncover those subtle patterns by focusing on entity-level portrayal rather than overall tone.
           </p>
           <p>
-            In the Philippine context, where media plurality and political
-            discourse are vibrant, this tool helps track how various outlets
-            cover key national issues and personalities.
+            By comparing results across local and international news sources, users can gain a clearer understanding of how the same events and entities may be framed differently.
           </p>
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
           <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
-            Video
+            System Demonstration
           </h2>
           <p className="text-justify">
-            The system processes news articles related to the West Philippine
-            Sea per sentence through a cloud integration pipeline to determine
-            entity framing at real time:
+            This video provides a guided walkthrough of the system, showing how users can
+  explore entity-level framing, compare news coverage, and perform real-time analysis.
           </p>
           <div className="mx-auto aspect-video w-full">
             <iframe
@@ -98,29 +88,19 @@ const About = () => {
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <Calculator
+            <Info
               size={16}
               className="text-blue-700 dark:text-blue-300"
             />
             <h2 className="text-xl font-medium text-slate-900 dark:text-slate-100">
-              Calculations
+              Disclaimer
             </h2>
           </div>
           <p>
-            Traditional sentiment analysis examines overall article tone, but
-            entity-level analysis provides more granular insights by determining
-            how specific entities are portrayed within the same article.
+            This system provides model-generated analytical results and does not represent the actual intent, bias, or editorial stance of any news organization.
           </p>
           <p>
-            For example, a single article may express positive sentiment toward
-            one political figure while expressing negative sentiment toward
-            another. This nuanced approach reveals how media outlets frame
-            different actors in complex political narratives.
-          </p>
-          <p>
-            In the Philippine context, where media plurality and political
-            discourse are vibrant, this tool helps track how various outlets
-            cover key national issues and personalities.
+            The outputs should be interpreted as computational analysis results based on trained models, and are intended to support research and exploration rather than definitive conclusions.
           </p>
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
