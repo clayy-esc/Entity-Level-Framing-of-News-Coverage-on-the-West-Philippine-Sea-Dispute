@@ -1,4 +1,11 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
+import {
+  Lightbulb,
+  Activity,
+  Users,
+  BarChart,
+  AlertTriangle,
+} from "lucide-react";
 
 const Report = () => {
   const API = import.meta.env.VITE_API_URL + "/api";
@@ -9,7 +16,7 @@ const Report = () => {
   const [model, setModel] = useState("model1");
   const [loading, setLoading] = useState(false);
 
-  // 🔥 NEW: community history
+  // NEW: community history
   const [analyses, setAnalyses] = useState([]);
   const [latestAnalysisId, setLatestAnalysisId] = useState(null);
   const [duplicateMessage, setDuplicateMessage] = useState(null);
@@ -54,7 +61,7 @@ const Report = () => {
   };
 
   // =========================
-  // 🔹 FETCH ANALYSES
+  // FETCH ANALYSES
   // =========================
   const fetchAnalyses = async () => {
     try {
@@ -72,7 +79,7 @@ const Report = () => {
   }, [page]);
 
   // =========================
-  // 🔹 TOKEN LOGIC
+  // TOKEN LOGIC
   // =========================
   const tokenSpans = useMemo(() => {
     const tokens = text.match(/\S+|\s+/g) || [];
@@ -153,7 +160,7 @@ const Report = () => {
     JSON.stringify(lastAnalysisRef.current) === currentPayload;
 
   // =========================
-  // 🔥 ANALYZE (BATCH)
+  // ANALYZE (BATCH)
   // =========================
   const handleAnalyze = async () => {
     if (isSameAsLast) return;
@@ -181,15 +188,15 @@ const Report = () => {
 
       setResults(enriched);
 
-      // ✅ HANDLE NEW vs DUPLICATE
+      // HANDLE NEW vs DUPLICATE
       if (data.message) {
-        // 🔹 duplicate case
+        // duplicate case
         setDuplicateMessage({
           text: "Already analyzed",
           id: data.analysis_id,
         });
       } else {
-        // 🔹 new analysis
+        // new analysis
         setDuplicateMessage(null);
 
         setLatestAnalysisId(data.analysis_id);
@@ -203,7 +210,7 @@ const Report = () => {
       // save last request
       lastAnalysisRef.current = JSON.parse(currentPayload);
 
-      // ✅ ONLY ONE refresh
+      // ONLY ONE refresh
       await fetchAnalyses();
     } catch (error) {
       console.error("Error:", error);
@@ -223,7 +230,7 @@ const Report = () => {
   };
 
   // =========================
-  // 🔹 RENDER TEXT
+  // RENDER TEXT
   // =========================
   const renderText = () => {
     let parts = [];
@@ -266,323 +273,360 @@ const Report = () => {
   };
 
   // =========================
-  // 🔹 PAGINATION
+  // PAGINATION
   // =========================
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
   const end = Math.min(page * limit, total);
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 text-slate-700 dark:bg-slate-900 dark:text-slate-300">
-      <div className="mx-auto max-w-5xl space-y-8">
-        {/* HEADER */}
-        <div>
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+    <main className="flex-1">
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-5/6 md:w-3/5">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             Detailed Report
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Entity-level framing analysis with real-time testing
-          </p>
+          <p>Entity-level framing analysis with real-time testing</p>
         </div>
 
-        {/* ANALYZER */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md dark:border-slate-700 dark:bg-slate-800">
-          <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
-            Real-Time Sentence Analyzer
-          </h2>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-            Enter a sentence and highlight entities.
-          </p>
+        <section className="mt-6 w-5/6 space-y-6 md:w-3/5">
+          {/* ANALYZER */}
+          <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
+            <div className="flex items-center gap-2">
+              <Activity
+                size={18}
+                className="text-slate-900 dark:text-slate-100"
+              />
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                Real-Time Sentence Analyzer
+              </h2>
+            </div>
+            <p className="mt-2 mb-4 text-sm text-slate-700 dark:text-slate-300">
+              Enter a sentence and highlight entities.
+            </p>
 
-          <textarea
-            value={text}
-            onChange={(e) => {
-              setText(e.target.value);
-              setEntities([]);
-              setResults([]);
-              lastAnalysisRef.current = null;
-              setDuplicateMessage(null);
-            }}
-            placeholder="Enter a sentence..."
-            className="w-full rounded border border-slate-300 bg-white p-3 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
-          />
+            <textarea
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value);
+                setEntities([]);
+                setResults([]);
+                lastAnalysisRef.current = null;
+                setDuplicateMessage(null);
+              }}
+              placeholder="Enter a sentence..."
+              className="w-full cursor-text rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-700 transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            />
 
-          <div className="mb-3 rounded border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-600 dark:border-slate-600 dark:bg-slate-700/40 dark:text-slate-300">
-            💡 Highlight the entity you want to analyze.
-          </div>
+            <div className="mb-3 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <Lightbulb
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
+              Highlight the entity you want to analyze.
+            </div>
 
-          <div
-            ref={containerRef}
-            onMouseUp={handleMouseUp}
-            className="mb-2 min-h-20 cursor-text rounded border border-slate-300 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700"
-          >
-            {renderText()}
-          </div>
+            <div
+              ref={containerRef}
+              onMouseUp={handleMouseUp}
+              className="mb-2 min-h-20 cursor-text overflow-hidden rounded-md border border-slate-300 bg-slate-50 p-4 text-sm wrap-break-word whitespace-pre-wrap dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            >
+              {renderText()}
+            </div>
 
-          {/* Selected Entities */}
-          {entities.length > 0 && (
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <span>Selected:</span>
+            {/* Selected Entities */}
+            {entities.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                <span>Selected:</span>
 
-              {/* Entity chips */}
-              <div className="flex flex-wrap gap-1">
-                {entityTexts.map((ent, i) => (
-                  <span
-                    key={i}
-                    className="> bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-200"
-                  >
-                    {ent}
-                  </span>
-                ))}
+                {/* Entity chips */}
+                <div className="flex flex-wrap gap-1">
+                  {entityTexts.map((ent, i) => (
+                    <span
+                      key={i}
+                      className="rounded-md bg-slate-200 px-2 py-0.5 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                    >
+                      {ent}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Count badge */}
+                <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                  {entities.length}
+                </span>
+              </div>
+            )}
+
+            {/* CONTROL ROW */}
+            <div className="mt-4 flex items-end justify-between">
+              {/* LEFT: ACTION BUTTONS */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAnalyze}
+                  disabled={loading || entities.length === 0 || isSameAsLast}
+                  title={
+                    loading
+                      ? "Processing..."
+                      : entities.length === 0
+                        ? "Select/Highlight at least one entity"
+                        : isSameAsLast
+                          ? "No changes to analyze"
+                          : "Analyze selected entities"
+                  }
+                  className="flex cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                >
+                  {loading && (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  )}
+
+                  {loading ? "Analyzing..." : "Analyze Sentence"}
+                </button>
+
+                <button
+                  onClick={handleClear}
+                  className="cursor-pointer rounded-md bg-slate-200 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                >
+                  Clear
+                </button>
               </div>
 
-              {/* Count badge */}
-              <span className="ml-1 rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
-                {entities.length}
+              {/* RIGHT: MODEL SELECT */}
+              <div className="flex flex-col items-end gap-1">
+                <label className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                  Model
+                </label>
+
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className="cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                >
+                  <option value="model1">RoBERTa</option>
+                  <option value="model2">BERT</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* DUPLICATE MESSAGE */}
+          {duplicateMessage?.id && (
+            <div className="mt-3 flex items-center gap-2 rounded border border-yellow-300 bg-yellow-100 px-3 py-2 text-xs text-yellow-700 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-400">
+              <AlertTriangle size={16} />
+              <span>
+                {duplicateMessage.text} —{" "}
+                <span
+                  onClick={async () => {
+                    const targetId = duplicateMessage.id;
+
+                    try {
+                      const res = await fetch(
+                        `${API}/analysis-page/${targetId}`,
+                      );
+                      const data = await res.json();
+
+                      const targetPage = data.page;
+
+                      if (targetPage !== page) {
+                        setPage(targetPage);
+
+                        setTimeout(() => {
+                          rowRefs.current[targetId]?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                          });
+
+                          setHighlightId(targetId);
+                          setTimeout(() => setHighlightId(null), 1500);
+                        }, 400);
+                      } else {
+                        rowRefs.current[targetId]?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
+
+                        setHighlightId(targetId);
+                        setTimeout(() => setHighlightId(null), 1500);
+                      }
+                    } catch (err) {
+                      console.error("Jump error:", err);
+                    }
+                  }}
+                  className="cursor-pointer underline hover:text-yellow-300"
+                >
+                  jump to saved result
+                </span>
               </span>
             </div>
           )}
 
-          {/* CONTROL ROW */}
-          <div className="mt-4 flex items-end justify-between">
-            {/* LEFT: ACTION BUTTONS */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleAnalyze}
-                disabled={loading || entities.length === 0 || isSameAsLast}
-                title={
-                  loading
-                    ? "Processing..."
-                    : entities.length === 0
-                      ? "Select/Highlight at least one entity"
-                      : isSameAsLast
-                        ? "No changes to analyze"
-                        : "Analyze selected entities"
-                }
-                className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
-              >
-                {loading && (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                )}
-
-                {loading ? "Analyzing..." : "Analyze Sentence"}
-              </button>
-
-              <button
-                onClick={handleClear}
-                className="rounded bg-slate-200 px-3 py-2 text-sm text-slate-800 transition hover:bg-slate-300 dark:bg-slate-600 dark:text-white dark:hover:bg-slate-500"
-              >
-                Clear
-              </button>
+          {/* COMMUNITY */}
+          <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
+            <div className="mb-2 flex items-center gap-2">
+              <Users size={18} className="text-slate-900 dark:text-slate-100" />
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                Community Analyses
+              </h2>
             </div>
 
-            {/* RIGHT: MODEL SELECT */}
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-slate-600 dark:text-slate-400">
-                Model
-              </span>
-
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="cursor-pointer rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-              >
-                <option value="model1">RoBERTa</option>
-                <option value="model2">BERT</option>
-              </select>
+            {/* Total Count */}
+            <div className="mb-3 flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
+              <BarChart
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
+              Total Analyses: {total}
             </div>
-          </div>
-        </div>
 
-        {/* 🔥 DUPLICATE MESSAGE */}
-        {duplicateMessage?.id && (
-          <div className="mt-3 rounded border border-yellow-300 bg-yellow-100 px-3 py-2 text-xs text-yellow-700 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-400">
-            ⚠️ {duplicateMessage.text} —{" "}
-            <span
-              onClick={async () => {
-                const targetId = duplicateMessage.id;
+            {analyses.length === 0 ? (
+              <div className="text-center text-sm text-slate-600 dark:text-slate-400">
+                No saved analyses yet
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+                <table className="w-full border-collapse divide-y divide-slate-200 text-sm dark:divide-slate-700">
+                  <thead className="bg-slate-50 dark:bg-slate-800">
+                    <tr className="border-b border-slate-200 text-slate-900 dark:border-slate-700 dark:text-slate-100">
+                      <th className="px-4 py-3 text-left font-medium">
+                        Sentence
+                      </th>
+                      <th className="px-4 py-3 text-center font-medium">
+                        Entity
+                      </th>
+                      <th className="px-4 py-3 text-center font-medium">
+                        Framing
+                      </th>
+                      <th className="px-4 py-3 text-center font-medium">
+                        Model
+                      </th>
+                      <th className="px-4 py-3 text-center font-medium">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
 
-                try {
-                  const res = await fetch(`${API}/analysis-page/${targetId}`);
-                  const data = await res.json();
-
-                  const targetPage = data.page;
-
-                  if (targetPage !== page) {
-                    setPage(targetPage);
-
-                    setTimeout(() => {
-                      rowRefs.current[targetId]?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                      });
-
-                      setHighlightId(targetId);
-                      setTimeout(() => setHighlightId(null), 1500);
-                    }, 400);
-                  } else {
-                    rowRefs.current[targetId]?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
-
-                    setHighlightId(targetId);
-                    setTimeout(() => setHighlightId(null), 1500);
-                  }
-                } catch (err) {
-                  console.error("Jump error:", err);
-                }
-              }}
-              className="cursor-pointer underline hover:text-yellow-300"
-            >
-              jump to saved result
-            </span>
-          </div>
-        )}
-
-        {/* COMMUNITY */}
-        <div className="rounded-2xl bg-white p-6 dark:bg-slate-800">
-          <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
-            Community Analyses
-          </h2>
-
-          {/* 🔹 Total Count */}
-          <div className="mb-3 text-sm text-slate-600 dark:text-slate-400">
-            📊 Total Analyses: {total}
-          </div>
-
-          {analyses.length === 0 ? (
-            <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-              No saved analyses yet
-            </div>
-          ) : (
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-slate-300 text-slate-600 dark:border-slate-600 dark:text-slate-400">
-                  <th className="px-4 py-3 text-left">Sentence</th>
-                  <th className="px-4 py-3 text-center">Entity</th>
-                  <th className="px-4 py-3 text-center">Framing</th>
-                  <th className="px-4 py-3 text-center">Model</th>
-                  <th className="px-4 py-3 text-center">Date</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {analyses.map((a, index) => (
-                  <React.Fragment key={a.id}>
-                    {/* 🔹 Divider BETWEEN analyses (not before first) */}
-                    {index !== 0 && (
-                      <tr>
-                        <td colSpan={5} className="py-2">
-                          <div className="h-px bg-slate-600/20"></div>
-                        </td>
-                      </tr>
-                    )}
-
-                    {a.entities.map((e, i) => (
-                      <tr
-                        key={`${a.id}-${i}`}
-                        ref={(el) => {
-                          if (i === 0) rowRefs.current[a.id] = el;
-                        }}
-                        className={`bg-white dark:bg-slate-700/50 ${
-                          i !== a.entities.length - 1
-                            ? "border-b border-slate-200 dark:border-slate-600"
-                            : ""
-                        } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${
-                          a.id === highlightId
-                            ? "bg-yellow-100 dark:bg-yellow-500/10"
-                            : ""
-                        } `}
-                      >
-                        {/* Sentence */}
-                        {i === 0 && (
-                          <td
-                            rowSpan={a.entities.length}
-                            className="max-w-105 space-y-1 px-4 py-4 align-top leading-relaxed"
-                          >
-                            <div>{a.sentence}</div>
-
-                            <div className="mt-1 text-xs text-slate-500">
-                              Analysis #{(page - 1) * limit + index + 1} •{" "}
-                              {a.entities.length} entities
-                            </div>
-                          </td>
+                  <tbody>
+                    {analyses.map((a, index) => (
+                      <React.Fragment key={a.id}>
+                        {/* Divider BETWEEN analyses (not before first) */}
+                        {index !== 0 && (
+                          <tr>
+                            <td colSpan={5} className="py-2">
+                              <div className="h-px bg-slate-600/20"></div>
+                            </td>
+                          </tr>
                         )}
 
-                        {/* Entity */}
-                        <td className="px-4 py-4 text-center">
-                          {e.entity_text}
-                        </td>
-
-                        {/* Framing */}
-                        <td className="px-4 py-4 text-center">
-                          <span
-                            className={`rounded px-2 py-1 text-xs ${colorMap[e.framing_label]}`}
+                        {a.entities.map((e, i) => (
+                          <tr
+                            key={`${a.id}-${i}`}
+                            ref={(el) => {
+                              if (i === 0) rowRefs.current[a.id] = el;
+                            }}
+                            className={`bg-white dark:bg-slate-700/50 ${
+                              i !== a.entities.length - 1
+                                ? "border-b border-slate-200 dark:border-slate-600"
+                                : ""
+                            } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${
+                              a.id === highlightId
+                                ? "bg-yellow-100 dark:bg-yellow-500/10"
+                                : ""
+                            } `}
                           >
-                            {e.framing_label}
-                          </span>
-                        </td>
+                            {/* Sentence */}
+                            {i === 0 && (
+                              <td
+                                rowSpan={a.entities.length}
+                                className="max-w-105 space-y-1 px-4 py-4 align-top leading-relaxed"
+                              >
+                                <div>{a.sentence}</div>
 
-                        {/* Model */}
-                        <td className="px-4 py-4 text-center">
-                          <span
-                            className={`rounded px-2 py-1 text-xs ${
-                              modelColorMap[a.model] ||
-                              "bg-gray-500/20 text-gray-300"
-                            }`}
-                          >
-                            {a.model}
-                          </span>
-                        </td>
+                                <div className="mt-1 text-xs text-slate-500">
+                                  Analysis #{(page - 1) * limit + index + 1} •{" "}
+                                  {a.entities.length} entities
+                                </div>
+                              </td>
+                            )}
 
-                        {/* Date */}
-                        <td className="px-4 py-4 text-center text-xs whitespace-nowrap text-slate-600 dark:text-slate-400">
-                          {new Date(a.created_at).toLocaleString()}
-                        </td>
-                      </tr>
+                            {/* Entity */}
+                            <td className="px-4 py-4 text-center">
+                              {e.entity_text}
+                            </td>
+
+                            {/* Framing */}
+                            <td className="px-4 py-4 text-center">
+                              <span
+                                className={`rounded px-2 py-1 text-xs ${colorMap[e.framing_label]}`}
+                              >
+                                {e.framing_label}
+                              </span>
+                            </td>
+
+                            {/* Model */}
+                            <td className="px-4 py-4 text-center">
+                              <span
+                                className={`rounded px-2 py-1 text-xs ${
+                                  modelColorMap[a.model] ||
+                                  "bg-gray-500/20 text-gray-300"
+                                }`}
+                              >
+                                {a.model}
+                              </span>
+                            </td>
+
+                            {/* Date */}
+                            <td className="px-4 py-4 text-center text-xs whitespace-nowrap text-slate-600 dark:text-slate-400">
+                              {new Date(a.created_at).toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
                     ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          )}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-          {/* 🔹 PAGINATION */}
-          <div className="mt-4 flex justify-between text-sm text-slate-600 dark:text-slate-400">
-            <span>
-              {total === 0
-                ? "No results"
-                : total === 1
-                  ? "Showing 1 result"
-                  : `Showing ${start}–${end} of ${total}`}
-            </span>
+            {/* PAGINATION */}
+            <div className="mt-4 flex items-center justify-between text-sm text-slate-700 dark:text-slate-300">
+              <span>
+                {total === 0
+                  ? "No results"
+                  : total === 1
+                    ? "Showing 1 result"
+                    : `Showing ${start}–${end} of ${total}`}
+              </span>
 
-            <span>
-              Page {page} of {totalPages}
-            </span>
+              <div className="flex items-center justify-center gap-4 pt-2">
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage(page - 1)}
+                  className="flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Prev
+                </button>
+
+                <span>
+                  Page{" "}
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">
+                    {page}
+                  </span>{" "}
+                  of {totalPages}
+                </span>
+
+                <button
+                  disabled={page === totalPages}
+                  onClick={() => setPage(page + 1)}
+                  className="flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
-
-          <div className="mt-2 flex gap-2">
-            <button
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-              className="rounded bg-slate-200 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-30 dark:bg-slate-700"
-            >
-              Prev
-            </button>
-
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage(page + 1)}
-              className="rounded bg-slate-200 px-3 py-1 disabled:cursor-not-allowed disabled:opacity-30 dark:bg-slate-700"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 
