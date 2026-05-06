@@ -99,8 +99,8 @@ const Methodology = () => {
                 className="mt-4 w-full rounded-md border border-slate-200 shadow-sm dark:border-slate-700"
               />{" "}
               <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
-                Figure: Data acquisition workflow showing link retrieval, HTML
-                preservation, and parsing.
+                Figure: Sample Article Data extracted from Philippine Daily
+                Inquirer
               </p>{" "}
             </div>
           )}
@@ -169,8 +169,8 @@ const Methodology = () => {
                 className="mt-4 w-full rounded-md border border-slate-200 shadow-sm dark:border-slate-700"
               />{" "}
               <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
-                Figure: Modeling architecture illustrating the transformer-based
-                entity-level framing classification.
+                Figure: Sample input for the transformer-based entity-level
+                framing classification.
               </p>{" "}
             </div>
           )}
