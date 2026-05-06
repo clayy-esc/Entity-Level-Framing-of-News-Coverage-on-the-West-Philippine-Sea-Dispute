@@ -6,8 +6,15 @@ import {
   BarChart,
   AlertTriangle,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  BookOpen,
 } from "lucide-react";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import pdfFile from "../assets/ELF_Annotation_Guide.pdf";
 
 const Report = () => {
   const API = import.meta.env.VITE_API_URL + "/api";
@@ -92,7 +99,6 @@ const Report = () => {
       behavior: "smooth",
       block: "start",
     });
-
   }, [page]);
 
   // =========================
@@ -189,8 +195,7 @@ const Report = () => {
     lastAnalysisRef.current &&
     JSON.stringify(lastAnalysisRef.current) === currentPayload;
 
-  const wordCount =
-    text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+  const wordCount = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
 
   const isTooLong = wordCount > 120;
 
@@ -286,10 +291,11 @@ const Report = () => {
           key={i}
           onClick={() => handleDelete(originalIndex)}
           title="Click to remove"
-          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${result
-            ? colorMap[result.framing_label]
-            : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
-            } hover:ring-2 hover:ring-red-400`}
+          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${
+            result
+              ? colorMap[result.framing_label]
+              : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
+          } hover:ring-2 hover:ring-red-400`}
         >
           {entityText}
           <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 group-hover:opacity-100">
@@ -336,7 +342,6 @@ const Report = () => {
     let bValue;
 
     switch (sortConfig.key) {
-
       case "entity":
         aValue = a.entities?.[0]?.entity_text || "";
         bValue = b.entities?.[0]?.entity_text || "";
@@ -360,6 +365,8 @@ const Report = () => {
     if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
   });
+  const [isPdfOpen, setIsPdfOpen] = useState(false);
+
   return (
     <main className="flex-1">
       <div className="flex flex-col items-center justify-center">
@@ -373,14 +380,24 @@ const Report = () => {
         <section className="mt-6 w-5/6 space-y-6 md:w-3/5">
           {/* ANALYZER */}
           <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
-            <div className="flex items-center gap-2">
-              <Activity
-                size={18}
-                className="text-slate-900 dark:text-slate-100"
-              />
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                Real-Time Sentence Analyzer
-              </h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity
+                  size={18}
+                  className="text-slate-900 dark:text-slate-100"
+                />
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Real-Time Sentence Analyzer
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPdfOpen(true)}
+                className="flex cursor-pointer items-center gap-1 rounded-md bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-800 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <BookOpen size={16} />
+                Annotation Guide
+              </button>
             </div>
             <p className="mt-2 mb-4 text-sm text-slate-700 dark:text-slate-300">
               Enter a sentence and highlight entities.
@@ -396,37 +413,35 @@ const Report = () => {
                 setDuplicateMessage(null);
               }}
               placeholder="Enter a sentence..."
-              className={`w-full cursor-text rounded-md border p-3 text-sm transition focus:ring-1 focus:outline-none
-                ${isTooLong
+              className={`w-full cursor-text rounded-md border p-3 text-sm transition focus:ring-1 focus:outline-none ${
+                isTooLong
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                }
-                bg-white text-slate-700
-                dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700
-              `}
+              } bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100`}
             />
 
             <div className="mt-2 mb-3 space-y-1">
               <p
-                className={`text-xs ${isTooLong
-                  ? "text-red-500"
-                  : wordCount > 100
-                    ? "text-yellow-500"
-                    : "text-slate-500"
-                  }`}
+                className={`text-xs ${
+                  isTooLong
+                    ? "text-red-500"
+                    : wordCount > 100
+                      ? "text-yellow-500"
+                      : "text-slate-500"
+                }`}
               >
                 {wordCount} / <span className="font-semibold">120</span> words
               </p>
 
               {isTooLong && (
                 <p className="text-xs text-red-500">
-                  Input exceeds recommended length. The model may truncate the sentence, which can affect accuracy.
+                  Input exceeds recommended length. The model may truncate the
+                  sentence, which can affect accuracy.
                 </p>
               )}
             </div>
 
-            <div className="mb-3 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-
+            <div className="mb-3 flex items-center gap-2 rounded border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
               <Lightbulb
                 size={16}
                 className="text-blue-600 dark:text-blue-400"
@@ -472,7 +487,12 @@ const Report = () => {
               <div className="flex gap-2">
                 <button
                   onClick={handleAnalyze}
-                  disabled={loading || entities.length === 0 || isSameAsLast || isTooLong}
+                  disabled={
+                    loading ||
+                    entities.length === 0 ||
+                    isSameAsLast ||
+                    isTooLong
+                  }
                   title={
                     loading
                       ? "Processing..."
@@ -581,7 +601,10 @@ const Report = () => {
 
             {/* Total Count */}
             <div className="mb-3 flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
-              <BarChart size={16} className="text-blue-600 dark:text-blue-400" />
+              <BarChart
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
               Total Analyses: {total}
             </div>
 
@@ -592,17 +615,9 @@ const Report = () => {
             ) : (
               <div ref={tableRef} className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
-
                   {/* HEADER */}
-                  <thead
-                    className="sticky top-0 z-10 backdrop-blur 
-                    bg-slate-100/80 dark:bg-slate-800/70 
-                    text-slate-700 dark:text-slate-300 
-                    text-xs tracking-wide"
-                  >
-
+                  <thead className="sticky top-0 z-10 bg-slate-100/80 text-xs tracking-wide text-slate-700 backdrop-blur dark:bg-slate-800/70 dark:text-slate-300">
                     <tr className="border-b border-slate-200/60 dark:border-slate-700/60">
-
                       {/* Sentence (no sort) */}
                       <th className="px-4 py-3 text-left font-semibold">
                         Sentence
@@ -611,7 +626,7 @@ const Report = () => {
                       {/* Entity */}
                       <th
                         onClick={() => handleSort("entity")}
-                        className="px-4 py-3 text-center font-semibold cursor-pointer hover:text-blue-500"
+                        className="cursor-pointer px-4 py-3 text-center font-semibold hover:text-blue-500"
                       >
                         <div className="flex items-center justify-center gap-1">
                           Entity
@@ -635,7 +650,7 @@ const Report = () => {
                       {/* Model */}
                       <th
                         onClick={() => handleSort("model")}
-                        className="px-4 py-3 text-center font-semibold cursor-pointer hover:text-blue-500"
+                        className="cursor-pointer px-4 py-3 text-center font-semibold hover:text-blue-500"
                       >
                         <div className="flex items-center justify-center gap-1">
                           Model
@@ -654,7 +669,7 @@ const Report = () => {
                       {/* Date */}
                       <th
                         onClick={() => handleSort("date")}
-                        className="px-4 py-3 text-center font-semibold cursor-pointer hover:text-blue-500"
+                        className="cursor-pointer px-4 py-3 text-center font-semibold hover:text-blue-500"
                       >
                         <div className="flex items-center justify-center gap-1">
                           Date
@@ -669,7 +684,6 @@ const Report = () => {
                           )}
                         </div>
                       </th>
-
                     </tr>
                   </thead>
 
@@ -677,7 +691,6 @@ const Report = () => {
                   <tbody>
                     {sortedAnalyses.map((a, index) => (
                       <React.Fragment key={a.id}>
-
                         {/* Section Divider */}
                         {index !== 0 && (
                           <tr>
@@ -693,16 +706,16 @@ const Report = () => {
                             ref={(el) => {
                               if (i === 0) rowRefs.current[a.id] = el;
                             }}
-                            className={`bg-white dark:bg-slate-700/50 
-                    ${i !== a.entities.length - 1
+                            className={`bg-white dark:bg-slate-700/50 ${
+                              i !== a.entities.length - 1
                                 ? "border-b border-slate-200 dark:border-slate-600"
-                                : ""} 
-                    ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} 
-                    ${a.id === highlightId
+                                : ""
+                            } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${
+                              a.id === highlightId
                                 ? "bg-yellow-100 dark:bg-yellow-500/10"
-                                : ""}`}
+                                : ""
+                            }`}
                           >
-
                             {/* Sentence */}
                             {i === 0 && (
                               <td
@@ -735,9 +748,10 @@ const Report = () => {
                             {/* Model */}
                             <td className="px-4 py-4 text-center">
                               <span
-                                className={`rounded px-2 py-1 text-xs ${modelColorMap[a.model] ||
+                                className={`rounded px-2 py-1 text-xs ${
+                                  modelColorMap[a.model] ||
                                   "bg-gray-500/20 text-gray-300"
-                                  }`}
+                                }`}
                               >
                                 {a.model}
                               </span>
@@ -793,6 +807,46 @@ const Report = () => {
               </div>
             </div>
           </div>
+          {/* PDF DIALOG */}
+          <Dialog
+            open={isPdfOpen}
+            onClose={() => setIsPdfOpen(false)}
+            maxWidth="md"
+            fullWidth
+            PaperProps={{
+              className:
+                "dark:bg-slate-900 border border-slate-200 dark:border-slate-800",
+              style: { height: "90vh", maxHeight: "90vh" },
+            }}
+          >
+            <DialogTitle className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white font-semibold text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+              <span>ELF Annotation Guide</span>
+              <button
+                onClick={() => setIsPdfOpen(false)}
+                className="cursor-pointer text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                ✕
+              </button>
+            </DialogTitle>
+            <DialogContent
+              className="border-none bg-white p-0 dark:bg-slate-900"
+              style={{ height: "500px", overflow: "hidden" }}
+            >
+              <iframe
+                src={`${pdfFile}#view=FitH`}
+                title="ELF Annotation Guide"
+                style={{ width: "100%", height: "100%", border: "none" }}
+              />
+            </DialogContent>
+            <DialogActions className="shrink-0 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+              <Button
+                onClick={() => setIsPdfOpen(false)}
+                className="text-slate-700 dark:text-slate-300"
+              >
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
         </section>
       </div>
     </main>
