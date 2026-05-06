@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 import Bar from "../charts/Bar.jsx";
 import Heatmap from "../charts/Heatmap.jsx";
 import Line from "../charts/Line.jsx";
@@ -491,26 +494,80 @@ const Coverage = () => {
 
             {/* Date boundaries limit included rows before aggregation. */}
             <div className="grid grid-cols-1 gap-3">
-              <div className="space-y-1">
-                <label className="block text-sm font-medium">Start Date</label>
-                <input
-                  type="date"
-                  className="date-picker-input w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-                  min={datasetMinDate || undefined}
-                  max={endDate || datasetMaxDate || undefined}
-                  value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
+              <div className="flex flex-col space-y-1">
+                <label className="mb-1 block text-sm font-medium">
+                  Start Date
+                </label>
+                <DatePicker
+                  value={startDate ? dayjs(startDate) : null}
+                  minDate={datasetMinDate ? dayjs(datasetMinDate) : undefined}
+                  maxDate={
+                    endDate
+                      ? dayjs(endDate)
+                      : datasetMaxDate
+                        ? dayjs(datasetMaxDate)
+                        : undefined
+                  }
+                  onChange={(newValue) =>
+                    setStartDate(newValue ? newValue.format("YYYY-MM-DD") : "")
+                  }
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      sx: {
+                        width: "100%",
+                        "& .MuiInputBase-root": {
+                          borderRadius: "0.375rem",
+                          backgroundColor: "transparent",
+                          fontSize: "0.875rem",
+                          color: "inherit",
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
+                      },
+                      className:
+                        "cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-1.5 transition hover:bg-slate-100 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-800",
+                    },
+                  }}
                 />
               </div>
-              <div className="space-y-1">
-                <label className="block text-sm font-medium">End Date</label>
-                <input
-                  type="date"
-                  className="date-picker-input w-full cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-sm transition hover:bg-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-                  min={startDate || datasetMinDate || undefined}
-                  max={datasetMaxDate || undefined}
-                  value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
+              <div className="flex flex-col space-y-1">
+                <label className="mb-1 block text-sm font-medium">
+                  End Date
+                </label>
+                <DatePicker
+                  value={endDate ? dayjs(endDate) : null}
+                  minDate={
+                    startDate
+                      ? dayjs(startDate)
+                      : datasetMinDate
+                        ? dayjs(datasetMinDate)
+                        : undefined
+                  }
+                  maxDate={datasetMaxDate ? dayjs(datasetMaxDate) : undefined}
+                  onChange={(newValue) =>
+                    setEndDate(newValue ? newValue.format("YYYY-MM-DD") : "")
+                  }
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      sx: {
+                        width: "100%",
+                        "& .MuiInputBase-root": {
+                          borderRadius: "0.375rem",
+                          backgroundColor: "transparent",
+                          fontSize: "0.875rem",
+                          color: "inherit",
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
+                      },
+                      className:
+                        "cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-1.5 transition hover:bg-slate-100 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-800",
+                    },
+                  }}
                 />
               </div>
             </div>

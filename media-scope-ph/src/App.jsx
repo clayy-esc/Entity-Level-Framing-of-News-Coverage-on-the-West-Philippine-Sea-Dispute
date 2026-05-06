@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Routes, Route } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Navbar from "./components/Navbar.jsx";
 import Coverage from "./pages/Coverage.jsx";
 import About from "./pages/About.jsx";
@@ -30,20 +33,37 @@ const App = () => {
     localStorage.setItem("darkMode", String(darkMode));
   }, [darkMode]);
 
+  const muiTheme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: darkMode ? "dark" : "light",
+        },
+        typography: {
+          fontFamily: "inherit",
+        },
+      }),
+    [darkMode],
+  );
+
   return (
-    <div className="font-inter flex min-h-screen flex-col gap-8 bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
-      <Navbar
-        darkMode={darkMode}
-        onToggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
-      />
-      <Routes>
-        <Route path="/" element={<Coverage />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/methodology" element={<Methodology />} />
-        <Route path="/report" element={<Report />} />
-      </Routes>
-      <Footer />
-    </div>
+    <ThemeProvider theme={muiTheme}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <div className="font-inter flex min-h-screen flex-col gap-8 bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+          <Navbar
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
+          />
+          <Routes>
+            <Route path="/" element={<Coverage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/methodology" element={<Methodology />} />
+            <Route path="/report" element={<Report />} />
+          </Routes>
+          <Footer />
+        </div>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 };
 
