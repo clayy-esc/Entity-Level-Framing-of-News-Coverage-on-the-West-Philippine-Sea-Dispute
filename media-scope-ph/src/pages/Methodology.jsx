@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import dataCollectionImg from "../assets/methodology-assets/data-collection.jpg";
+import modelingImg from "../assets/methodology-assets/modeling.jpg";
 
 const Methodology = () => {
   const [openSections, setOpenSections] = useState({
@@ -91,6 +93,15 @@ const Methodology = () => {
                 reproducibility, consistency, and compliance with ethical data
                 collection practices.
               </p>
+              <img
+                src={dataCollectionImg}
+                alt="Data Collection Process"
+                className="mt-4 w-full rounded-md border border-slate-200 shadow-sm dark:border-slate-700"
+              />{" "}
+              <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+                Figure: Data acquisition workflow showing link retrieval, HTML
+                preservation, and parsing.
+              </p>{" "}
             </div>
           )}
         </section>
@@ -152,6 +163,15 @@ const Methodology = () => {
                 and validation-based model selection. This ensures balanced
                 performance across all framing categories.
               </p>
+              <img
+                src={modelingImg}
+                alt="Modeling Architecture"
+                className="mt-4 w-full rounded-md border border-slate-200 shadow-sm dark:border-slate-700"
+              />{" "}
+              <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+                Figure: Modeling architecture illustrating the transformer-based
+                entity-level framing classification.
+              </p>{" "}
             </div>
           )}
         </section>
