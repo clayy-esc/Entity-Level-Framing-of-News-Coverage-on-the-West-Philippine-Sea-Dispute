@@ -29,7 +29,7 @@ const About = () => {
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             About the System
           </h1>
-          <p>Exploring how news articles portray key actors in the West Philippine Sea dispute through entity-level framing analysis</p>
+          <p>Exploring contextual framing patterns of key actors in news coverage of the West Philippine Sea dispute through entity-level framing analysis</p>
         </div>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
           <div className="flex items-center gap-2">
@@ -39,13 +39,13 @@ const About = () => {
             </h2>
           </div>
           <p>
-            This system is an Entity-Level Framing and Cross-Media Analysis platform designed to help users understand how news articles portray key actors involved in the West Philippine Sea dispute.
+            This system is an Entity-Level Framing and Comparative Framing Analysis platform designed to support analysis of how news articles contextually represent key actors involved in the West Philippine Sea dispute.
           </p>
           <p>
-            Instead of simply identifying whether a news article is positive or negative, the system focuses on how specific entities such as countries, government agencies, and organizations are represented within individual sentences.
+            Instead of simply identifying whether a news article expresses positive or negative sentiment, the system focuses on how specific entities such as countries, government agencies, and organizations are contextually represented within sentence-level discourse.
           </p>
           <p>
-            By analyzing these portrayals, the platform allows users to see how narratives are constructed and how different actors are positioned in news reporting.
+            By analyzing these contextual portrayals, the platform allows users to explore variations in entity-level framing patterns across different news sources.
           </p>
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 text-justify shadow-md md:w-3/5 dark:bg-slate-900">
@@ -59,13 +59,13 @@ const About = () => {
             </h2>
           </div>
           <p>
-            The purpose of this system is to provide a more detailed and systematic way of analyzing news coverage, particularly in complex geopolitical issues.
+            The purpose of this system is to provide a more detailed and systematic approach for analyzing news coverage, particularly in complex geopolitical contexts.
           </p>
           <p>
-            News reporting often appears neutral, but the way actions are described and attributed can influence how readers perceive different actors. This system helps uncover those subtle patterns by focusing on entity-level portrayal rather than overall tone.
+            News reporting often maintains formally neutral language, yet contextual framing may emerge through how actions, responsibilities, and events are linguistically represented. This system supports analysis of these contextual framing patterns by focusing on entity-level portrayal rather than overall sentiment polarity.
           </p>
           <p>
-            By comparing results across local and international news sources, users can gain a clearer understanding of how the same events and entities may be framed differently.
+            Through comparative framing analysis across local and international news sources, users can explore how contextual portrayals of entities vary across different reporting environments.
           </p>
         </section>
         <section className="mt-6 w-5/6 space-y-2 rounded-xl bg-white p-8 shadow-md md:w-3/5 dark:bg-slate-900">
@@ -73,8 +73,7 @@ const About = () => {
             System Demonstration
           </h2>
           <p className="text-justify">
-            This video provides a guided walkthrough of the system, showing how users can
-  explore entity-level framing, compare news coverage, and perform real-time analysis.
+            This video provides a guided walkthrough of the system, showing how users can explore entity-level framing patterns, examine comparative framing distributions across news sources, and perform real-time analysis.
           </p>
           <div className="mx-auto aspect-video w-full">
             <iframe

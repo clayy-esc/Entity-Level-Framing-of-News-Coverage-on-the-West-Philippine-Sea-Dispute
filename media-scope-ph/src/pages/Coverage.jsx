@@ -379,11 +379,11 @@ const Coverage = () => {
       <div className="flex flex-col items-center justify-center">
         <div className="w-5/6 md:w-4/5">
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Cross-Media Entity-Level Framing Dashboard
+            Cross-Media Framing Dashboard
           </h1>
           <p>
-            Explore entity-level framing distribution and trends across
-            Philippine and International news outlets
+            Explore framing distribution and trends across Philippine news
+            outlets
           </p>
         </div>
         {/* Filter panel and chart panel layout. */}
