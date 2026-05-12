@@ -100,8 +100,8 @@ const About = () => {
           </p>
           <div className="mx-auto aspect-video w-full">
             <iframe
-              src="https://www.youtube.com/embed/dB9ZDwwDPgg?si=mL54DAE4Kdp3oVmF"
-              title="YouTube video player"
+              src="https://www.youtube.com/embed/UNppIt0P1w4?si=RWmS0BvE4MBHDUEj"
+              title="Media Scope PH Demonstration"
               className="h-full w-full rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
