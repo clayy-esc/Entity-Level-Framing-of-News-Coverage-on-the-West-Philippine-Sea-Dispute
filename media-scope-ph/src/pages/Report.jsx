@@ -1,3 +1,22 @@
+/**
+ * This page provides a real-time interactive interface
+ * for entity-level framing analysis using transformer-based
+ * NLP models (RoBERTa and BERT).
+ *
+ * Core Features:
+ * - Manual entity highlighting
+ * - Real-time framing prediction
+ * - Transformer model selection
+ * - Duplicate analysis detection
+ * - Community analysis history
+ * - Pagination and sorting
+ * - Interactive entity visualization
+ *
+ * The page communicates with the FastAPI backend,
+ * which forwards inference requests to the
+ * HuggingFace model-serving API.
+ */
+
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   Lightbulb,
@@ -25,7 +44,7 @@ const Report = () => {
   const [model, setModel] = useState("model1");
   const [loading, setLoading] = useState(false);
 
-  // NEW: community history
+  // Community history
   const [analyses, setAnalyses] = useState([]);
   const [latestAnalysisId, setLatestAnalysisId] = useState(null);
   const [duplicateMessage, setDuplicateMessage] = useState(null);
@@ -72,8 +91,26 @@ const Report = () => {
   };
 
   // =========================
-  // FETCH ANALYSES
+  // COMMUNITY ANALYSIS HISTORY
   // =========================
+  //
+  // Retrieves previously stored entity-level
+  // analyses from the backend database.
+  //
+  // Supports:
+  // - pagination
+  // - sorting
+  // - duplicate navigation
+  // - historical analysis review
+
+  /**
+  * Fetch paginated community analyses
+  * from the backend API.
+  *
+  * The retrieved data populates the
+  * Community Analyses table and supports
+  * historical exploration of framing outputs.
+   */
   const fetchAnalyses = async () => {
     try {
       const res = await fetch(`${API}/analyses?page=${page}&limit=${limit}`);
@@ -102,8 +139,17 @@ const Report = () => {
   }, [page]);
 
   // =========================
-  // TOKEN LOGIC
+  // ENTITY TOKEN SELECTION LOGIC
   // =========================
+  //
+  // Handles manual entity highlighting
+  // within the input sentence.
+  //
+  // Features:
+  // - token boundary snapping
+  // - overlap prevention
+  // - whitespace validation
+  // - entity span tracking
   const tokenSpans = useMemo(() => {
     const tokens = text.match(/\S+|\s+/g) || [];
     let offset = 0;
@@ -132,6 +178,18 @@ const Report = () => {
     return entities.some((ent) => start < ent.end && end > ent.start);
   };
 
+  /**
+  * Handle manual entity selection inside the text area.
+  *
+  * Selected text is automatically aligned to
+  * token boundaries to improve consistency
+  * during entity-conditioned inference.
+  *
+  * The function also prevents:
+  * - empty selections
+  * - overlapping entities
+  * - invalid spans
+  */
   const handleMouseUp = () => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) return;
@@ -139,7 +197,7 @@ const Report = () => {
     const range = selection.getRangeAt(0);
     const selectedText = selection.toString();
 
-    // 🚫 NEW: prevent empty or whitespace-only selections
+    // prevent empty or whitespace-only selections
     if (!selectedText || selectedText.trim().length === 0) {
       selection.removeAllRanges();
       return;
@@ -156,7 +214,7 @@ const Report = () => {
     start = snapped.start;
     end = snapped.end;
 
-    // 🚫 EXTRA SAFETY: check again after snapping
+    // check again after snapping
     const snappedText = text.slice(start, end);
     if (!snappedText.trim()) {
       selection.removeAllRanges();
@@ -200,8 +258,32 @@ const Report = () => {
   const isTooLong = wordCount > 120;
 
   // =========================
-  // ANALYZE (BATCH)
+  // REAL-TIME FRAMING ANALYSIS
   // =========================
+  //
+  // Sends the selected sentence,
+  // highlighted entities, and chosen
+  // transformer model to the backend API.
+  //
+  // The backend coordinates:
+  // - duplicate detection
+  // - database persistence
+  // - HuggingFace inference requests
+  //
+  // Results are returned as
+  // entity-level framing labels.
+
+  /**
+  * Perform real-time entity-level framing analysis.
+  *
+  * This function:
+  * - validates the current request
+  * - prevents duplicate submissions
+  * - sends the analysis request to the backend
+  * - retrieves framing predictions
+  * - updates the visualization state
+  * - refreshes stored community analyses
+  */
   const handleAnalyze = async () => {
     if (isSameAsLast) return;
 
@@ -228,7 +310,7 @@ const Report = () => {
 
       setResults(enriched);
 
-      // HANDLE NEW vs DUPLICATE
+      // Handle new vs duplicate
       if (data.message === "duplicate") {
         // duplicate case
         setDuplicateMessage({
@@ -250,7 +332,7 @@ const Report = () => {
       // save last request
       lastAnalysisRef.current = JSON.parse(currentPayload);
 
-      // ONLY ONE refresh
+      // Only one refresh
       await fetchAnalyses();
     } catch (error) {
       console.error("Error:", error);
@@ -269,8 +351,25 @@ const Report = () => {
   };
 
   // =========================
-  // RENDER TEXT
+  // INTERACTIVE ENTITY RENDERING
   // =========================
+  //  
+  // Dynamically renders highlighted
+  // entities inside the sentence preview.
+  //
+  // Features:
+  // - framing color visualization
+  // - clickable entity removal
+  // - contextual highlighting 
+  // - real-time prediction display
+
+  /**
+  * Render the sentence preview with
+  * interactive entity highlighting.
+  *
+  * Highlight colors reflect predicted
+  * framing labels returned by the model.
+  */
   const renderText = () => {
     let parts = [];
     let last = 0;
@@ -312,8 +411,16 @@ const Report = () => {
   };
 
   // =========================
-  // PAGINATION
+  // PAGINATION AND TABLE SORTING
   // =========================
+  //
+  // Supports navigation and sorting
+  // of stored community analyses.
+  //
+  // Sortable fields:
+  // - entity
+  // - model
+  // - date
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
   const end = Math.min(page * limit, total);
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -378,7 +485,17 @@ const Report = () => {
         </div>
 
         <section className="mt-6 w-5/6 space-y-6 md:w-3/5">
-          {/* ANALYZER */}
+          {/* 
+          ========================================
+          REAL-TIME ENTITY-LEVEL ANALYZER
+          ========================================
+
+          Interactive interface for:
+          - sentence input
+          - entity highlighting
+          - transformer model selection
+          - framing prediction
+          */}
           <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -539,7 +656,17 @@ const Report = () => {
             </div>
           </div>
 
-          {/* DUPLICATE MESSAGE */}
+          {/* 
+          ========================================
+          DUPLICATE ANALYSIS DETECTION
+          ========================================
+
+          Prevents repeated inference requests
+          for identical sentence/entity/model inputs.
+
+          Allows users to jump directly to the
+          previously stored analysis result.
+          */}
           {duplicateMessage?.id && (
             <div className="mt-3 flex items-center gap-2 rounded border border-yellow-300 bg-yellow-100 px-3 py-2 text-xs text-yellow-700 dark:border-yellow-500/30 dark:bg-yellow-500/10 dark:text-yellow-400">
               <AlertTriangle size={16} />
@@ -590,7 +717,21 @@ const Report = () => {
             </div>
           )}
 
-          {/* COMMUNITY */}
+          {/* 
+          ========================================
+          COMMUNITY ANALYSES TABLE
+          ========================================
+
+          Displays previously processed analyses
+          stored in the PostgreSQL database.
+
+          Features:
+          - pagination
+          - sorting
+          - duplicate navigation
+          - timestamp tracking
+          - framing visualization
+          */}
           <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
             <div className="mb-2 flex items-center gap-2">
               <Users size={18} className="text-slate-900 dark:text-slate-100" />

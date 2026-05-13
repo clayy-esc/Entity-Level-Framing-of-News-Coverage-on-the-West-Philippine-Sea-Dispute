@@ -1,3 +1,21 @@
+"""
+
+This module defines the API endpoints responsible for
+entity-level framing analysis and retrieval of stored analyses.
+
+The routes support:
+- Real-time entity-level framing prediction
+- Batch entity analysis
+- Duplicate request detection
+- Pagination of previous analyses
+- Analysis page navigation support
+
+The system integrates with a HuggingFace-hosted transformer
+inference API for contextual framing classification using
+RoBERTa and BERT models.
+
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -21,29 +39,82 @@ model_map = {
 @router.post("/analyze-batch")
 def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
-    # ✅ Limit entities
+    """
+    Perform entity-level framing analysis for multiple entities
+    within a single sentence.
+
+    This endpoint:
+    1. Validates user input
+    2. Prevents duplicate analyses using fingerprint matching
+    3. Sends entity-conditioned requests to the HuggingFace API
+    4. Stores analysis results in the database
+    5. Returns predicted framing labels
+
+    Args:
+        data (BatchRequest):
+            Request payload containing:
+            - sentence
+            - entities
+            - selected model
+
+        db (Session):
+            Active SQLAlchemy database session.
+
+    Returns:
+        dict:
+            JSON response containing:
+            - analysis_id
+            - framing results
+            - duplicate status (if applicable)
+
+    Raises:
+        HTTPException:
+            - 400 for invalid requests
+            - 500 for inference/server errors
+            - 504 for timeout errors
+    """
+
+    # Limit the number of entities per request
+    # to reduce inference load and prevent abuse.
     if len(data.entities) > 5:
         raise HTTPException(
             status_code=400,
             detail="Maximum of 5 entities allowed per request"
         )
 
-    # 🔥 Map model FIRST (FIXED)
+    # Convert frontend model identifier into
+    # the deployed HuggingFace model name.
     mapped_model = model_map.get(data.model)
     if not mapped_model:
         raise HTTPException(status_code=400, detail="Invalid model selected")
 
-    # 🔍 Normalize for fingerprint
     def normalize(text: str) -> str:
+        """
+        Normalize text for duplicate fingerprint generation.
+
+        The normalization process:
+        - converts text to lowercase
+        - removes extra whitespace
+        - removes punctuation
+
+        Args:
+            text (str): Raw text input.
+
+        Returns:
+            str: Normalized text.
+        """
+
         text = text.lower().strip()
         text = re.sub(r'\s+', ' ', text)
         text = re.sub(r'[^\w\s]', '', text)
         return text
 
+    # Normalize sentence and entities to ensure
+    # consistent duplicate detection.
     normalized_sentence = normalize(data.sentence)
     normalized_entities = sorted([normalize(e) for e in data.entities])
 
-    # ✅ Use mapped_model (FIXED)
+     # Generate unique fingerprint for duplicate checking.
     fingerprint = (
         normalized_sentence +
         "|" +
@@ -52,11 +123,12 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
         mapped_model.lower()
     )
 
-    # 🔍 Check duplicate
+    # Check whether the same analysis already exists.
     existing = db.query(Analysis).filter(
         Analysis.fingerprint == fingerprint
     ).first()
 
+    # Return existing analysis instead of recomputing.
     if existing:
         return {
             "analysis_id": existing.id,
@@ -70,7 +142,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "duplicate"
         }
 
-    # 🆕 Create new analysis (FIXED)
+    # Create new analysis record.
     analysis = Analysis(
         sentence=data.sentence,
         model=mapped_model,
@@ -82,6 +154,11 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(analysis)
     except IntegrityError:
+        """
+        Handles race-condition duplicates where another request
+        inserts the same fingerprint before commit completes.
+        """
+
         db.rollback()
         existing = db.query(Analysis).filter(
             Analysis.fingerprint == fingerprint
@@ -99,10 +176,11 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             "message": "duplicate"
         }
 
-    # 🔥 CALL HF API
+    # Store prediction results
     results = []
 
     try:
+        # Perform framing prediction for each selected entity.
         for entity in data.entities:
             response = requests.post(
                 HF_URL,
@@ -117,9 +195,11 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
             print("HF STATUS:", response.status_code)
             print("HF RESPONSE:", response.text)
 
+            # Validate inference API response.
             if response.status_code != 200:
                 raise HTTPException(status_code=500, detail=response.text)
 
+             # Extract predicted framing label.
             label = response.json()["label"]
 
             db.add(AnalysisEntity(
@@ -136,10 +216,19 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
         db.commit()
 
     except requests.exceptions.Timeout:
+        """
+        Handles timeout failures from the external
+        HuggingFace inference service.
+        """
+
         db.rollback()
         raise HTTPException(status_code=504, detail="Model service timeout")
 
     except Exception as e:
+        """
+        Handles unexpected backend or inference errors.
+        """
+
         db.rollback()
         print("🔥 ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
@@ -152,6 +241,29 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
 @router.get("/analyses")
 def get_analyses(page: int = 1, limit: int = 5, db: Session = Depends(get_db)):
+    """
+    Retrieve paginated entity-level analyses.
+
+    Results are ordered by newest first and include:
+    - sentence
+    - selected model
+    - entity-level framing outputs
+    - timestamps
+
+    Args:
+        page (int):
+            Current pagination page.
+
+        limit (int):
+            Number of analyses per page.
+
+        db (Session):
+            Active database session.
+
+    Returns:
+        dict:
+            Paginated analysis records.
+    """
 
     total = db.query(Analysis).count()
 
@@ -190,6 +302,25 @@ def get_analyses(page: int = 1, limit: int = 5, db: Session = Depends(get_db)):
 
 @router.get("/analysis-page/{analysis_id}")
 def get_analysis_page(analysis_id: int, db: Session = Depends(get_db)):
+    """
+    Determine the pagination page containing
+    a specific analysis record.
+
+    This endpoint supports frontend navigation
+    by calculating which paginated page contains
+    the requested analysis.
+
+    Args:
+        analysis_id (int):
+            Target analysis identifier.
+
+        db (Session):
+            Active database session.
+
+    Returns:
+        dict:
+            Pagination page number.
+    """
 
     created_at_subquery = (
         db.query(Analysis.created_at)

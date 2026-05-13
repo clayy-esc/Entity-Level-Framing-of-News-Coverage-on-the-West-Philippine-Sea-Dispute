@@ -1,30 +1,91 @@
+"""
+
+This module defines the Pydantic request schemas
+used for validating incoming API data related to
+entity-level framing analysis.
+
+The validation layer ensures:
+- proper request formatting
+- sentence integrity
+- entity constraints
+- valid model selection
+- prevention of malformed inputs
+
+The schemas support the backend analysis routes
+used by the MediaScope PH system.
+
+"""
+
 from pydantic import BaseModel, Field, field_validator
 from typing import List, Literal
+
+# Allowed frontend model identifiers.
+# These values are mapped internally to the
+# deployed HuggingFace transformer models.
 
 ModelType = Literal["model1", "model2"]
 
 
-class Input(BaseModel):
-    sentence: str = Field(..., min_length=1, max_length=1000)
-    entity_text: str = Field(..., min_length=1, max_length=200)
-    model: ModelType
-
-    @field_validator("sentence", "entity_text")
-    @classmethod
-    def no_empty_strings(cls, v: str):
-        if not v.strip():
-            raise ValueError("Field cannot be empty or whitespace")
-        return v
-
-
 class BatchRequest(BaseModel):
+    """
+    Request schema for batch entity-level framing analysis.
+
+    This schema validates user-submitted analysis requests
+    before processing by the backend inference pipeline.
+
+    Attributes:
+        sentence (str):
+            Input sentence containing contextual discourse.
+
+        entities (List[str]):
+            List of target entities selected for framing analysis.
+
+        model (ModelType):
+            Selected transformer model identifier.
+    """
+    # Sentence submitted for entity-level analysis.
+    # Constraints:
+    # - minimum length: 1
+    # - maximum length: 1000
     sentence: str = Field(..., min_length=1, max_length=1000)
-    entities: List[str] = Field(..., min_length=1, max_length=5)  # 🔥 added limit
+
+    # List of selected entities for analysis.
+    # Constraints:
+    # - minimum entities: 1
+    # - maximum entities: 5
+    # The limit helps control inference load
+    # and prevents excessive API requests.
+    entities: List[str] = Field(..., min_length=1, max_length=5)
+
+    # Selected transformer model identifier.
+    # Accepted values:
+    # - model1 -> RoBERTa
+    # - model2 -> BERT
     model: ModelType
 
     @field_validator("sentence")
     @classmethod
     def validate_sentence(cls, v: str):
+        """
+        Validate and normalize the input sentence.
+
+        The validator:
+        - removes surrounding whitespace
+        - prevents empty submissions
+
+        Args:
+            v (str):
+                Raw sentence input.
+
+        Returns:
+            str:
+                Cleaned sentence.
+
+        Raises:
+            ValueError:
+                If the sentence is empty.
+        """
+
         v = v.strip()
         if not v:
             raise ValueError("Sentence cannot be empty")
@@ -33,6 +94,28 @@ class BatchRequest(BaseModel):
     @field_validator("entities")
     @classmethod
     def validate_entities(cls, v: List[str]):
+        """
+        Validate and normalize entity selections.
+
+        The validator ensures:
+        - entities are not empty
+        - entities do not exceed length limits
+        - surrounding whitespace is removed
+
+        Args:
+            v (List[str]):
+                List of submitted entities.
+
+        Returns:
+            List[str]:
+                Cleaned entity list.
+
+        Raises:
+            ValueError:
+                If an entity is empty or exceeds
+                the allowed length.
+        """
+
         cleaned = []
         for entity in v:
             entity = entity.strip()
