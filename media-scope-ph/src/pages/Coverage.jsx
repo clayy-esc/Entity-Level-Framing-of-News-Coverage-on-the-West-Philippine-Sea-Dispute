@@ -381,10 +381,136 @@ const Coverage = () => {
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             Cross-Media Framing Dashboard
           </h1>
-          <p>
-            Explore framing distribution and trends across Philippine news
-            outlets
+          <p className="mb-4">
+            Explore framing distribution and trends across International and
+            Philippine news outlets
           </p>
+          <div className="mb-2 flex flex-col gap-4">
+            {/* Context/Analytical Guide */}
+            <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-800 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+              <h3 className="mb-3 text-base font-bold text-blue-700 dark:text-blue-400">
+                How to Read This Dashboard
+              </h3>
+              <p className="mb-4 text-justify leading-relaxed">
+                This interactive dashboard lets you explore how different news
+                outlets report on the West Philippine Sea dispute. By using
+                machine learning, we analyzed thousands of articles to detect
+                how key players are portrayed, whether as an "Aggressor", acting
+                "Defensive", asserting a "Legitimate" claim, or remaining
+                "Neutral". By combining the visualizations below, you can
+                interpret hidden media stances, track shifting narratives, and
+                understand how different publishers shape public opinion.
+              </p>
+
+              <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-3">
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Bar Chart: Spotting Publisher Stance
+                  </span>
+                  <p className="text-justify">
+                    This chart helps you analyze editorial stances by showing
+                    the total volume of framing labels per news outlet. By
+                    comparing them side by side, you can interpret whether
+                    certain outlets consistently paint specific actors in a
+                    negative or positive light, revealing potential national
+                    alliances or editorial slants.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Line Chart: Connecting News to Reality
+                  </span>
+                  <p className="text-justify">
+                    This timeline lets you interpret how media coverage reacts
+                    to real world events. By tracking the rises and falls of
+                    specific framings over time, you can see if spikes in
+                    "Aggressor" or "Defensive" labels directly correlate with
+                    major geopolitical incidents like water cannon encounters or
+                    diplomatic protests.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {useGeneralizedEntities
+                      ? "Heatmap: Seeing the Big Picture"
+                      : "Table: Auditing the Raw Data"}
+                  </span>
+                  <p className="text-justify">
+                    {useGeneralizedEntities
+                      ? "This view helps you analyze broad patterns by grouping individual entities into major state actors. The darker the color, the more frequently that group is given a specific framing label, letting you instantly spot overarching national narratives across different outlets."
+                      : "This view lets you dive into the granular data to verify our machine learning results. By reading the actual news sentences, you can interpret the context yourself and see the exact rhetoric journalists used that led to a specific framing classification."}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Dynamic Status Bar - Contextually Highlights Applied Filters */}
+            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900 transition-colors duration-300 dark:border-blue-800/50 dark:bg-blue-900/20 dark:text-blue-100">
+              <div className="mb-2 flex items-center gap-2">
+                <svg
+                  className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <h3 className="text-xs font-bold tracking-wider uppercase">
+                  {selectedEntity === "All" &&
+                  selectedEntityLabel === "All" &&
+                  selectedOutlet === "All" &&
+                  !startDate &&
+                  !endDate
+                    ? "Current View: Dashboard Overview"
+                    : "Current View: Filtered Analysis"}
+                </h3>
+              </div>
+              <p className="pl-7 leading-relaxed">
+                You are currently exploring{" "}
+                <strong className="text-blue-700 dark:text-blue-300">
+                  {selectedEntityLabel === "All"
+                    ? "all framing types"
+                    : `${selectedEntityLabel} framing`}
+                </strong>{" "}
+                for{" "}
+                <strong className="text-blue-700 dark:text-blue-300">
+                  {selectedEntity === "All" ? "all entities" : selectedEntity}
+                </strong>{" "}
+                as reported by{" "}
+                <strong className="text-blue-700 dark:text-blue-300">
+                  {selectedOutlet === "All"
+                    ? "all available outlets"
+                    : selectedOutlet}
+                </strong>
+                {(startDate || endDate) && (
+                  <span>
+                    {" "}
+                    from{" "}
+                    <strong className="text-blue-700 dark:text-blue-300">
+                      {startDate
+                        ? dayjs(startDate).format("MMMM D, YYYY")
+                        : "the beginning"}
+                    </strong>{" "}
+                    to{" "}
+                    <strong className="text-blue-700 dark:text-blue-300">
+                      {endDate
+                        ? dayjs(endDate).format("MMMM D, YYYY")
+                        : "the latest record"}
+                    </strong>
+                  </span>
+                )}
+                .{" "}
+                {useGeneralizedEntities
+                  ? " Entities are currently grouped into generalized state actors."
+                  : " Data is shown using the actual raw entities collected."}
+              </p>
+            </div>
+          </div>
         </div>
         {/* Filter panel and chart panel layout. */}
         <section className="mt-6 grid w-5/6 grid-cols-[1fr_3fr] gap-4 md:w-4/5">
