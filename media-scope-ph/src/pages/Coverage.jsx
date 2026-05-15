@@ -327,10 +327,10 @@ const Coverage = () => {
     );
     const heatmapPayload = useGeneralizedEntities
       ? {
-          rows: heatmapRows,
-          columns: heatmapColumns,
-          cells: heatmapCells,
-        }
+        rows: heatmapRows,
+        columns: heatmapColumns,
+        cells: heatmapCells,
+      }
       : null;
 
     if (!minIncludedDate || !maxIncludedDate) {
@@ -379,11 +379,10 @@ const Coverage = () => {
       <div className="flex flex-col items-center justify-center">
         <div className="w-5/6 md:w-4/5">
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Cross-Media Framing Dashboard
+            Comparative Framing Analysis Dashboard
           </h1>
           <p className="mb-4">
-            Explore framing distribution and trends across International and
-            Philippine news outlets
+            Explore entity-level framing patterns and contextual portrayals across local and international news coverage of the West Philippine Sea dispute.
           </p>
           <div className="mb-2 flex flex-col gap-4">
             {/* Context/Analytical Guide */}
@@ -392,53 +391,40 @@ const Coverage = () => {
                 How to Read This Dashboard
               </h3>
               <p className="mb-4 text-justify leading-relaxed">
-                This interactive dashboard lets you explore how different news
-                outlets report on the West Philippine Sea dispute. By using
-                machine learning, we analyzed thousands of articles to detect
-                how key players are portrayed, whether as an "Aggressor", acting
-                "Defensive", asserting a "Legitimate" claim, or remaining
-                "Neutral". By combining the visualizations below, you can
-                interpret hidden media stances, track shifting narratives, and
-                understand how different publishers shape public opinion.
+                This interactive dashboard supports exploratory analysis of entity-level framing patterns in news coverage related to the West Philippine Sea dispute. Using transformer-based Natural Language Processing models, the system analyzes how entities such as countries, organizations, and government agencies are contextually represented within sentence-level discourse.
+
+                Instead of measuring overall positive or negative sentiment, the system classifies entities into four contextual framing categories: Legitimate, Aggressor, Defensive, and Neutral. These classifications are generated from linguistic and contextual cues within the surrounding sentence.
+
+                The visualizations below allow users to explore framing distributions, temporal framing trends, and aggregated contextual portrayals across different news sources. The dashboard is intended to support comparative and research-oriented analysis of geopolitical news discourse.
               </p>
 
               <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-3">
                 <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
                   <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Bar Chart: Spotting Publisher Stance
+                    Bar Chart: Framing Distribution Across News Sources
                   </span>
                   <p className="text-justify">
-                    This chart helps you analyze editorial stances by showing
-                    the total volume of framing labels per news outlet. By
-                    comparing them side by side, you can interpret whether
-                    certain outlets consistently paint specific actors in a
-                    negative or positive light, revealing potential national
-                    alliances or editorial slants.
+                    This chart displays the distribution of entity-level framing categories across selected news outlets. By comparing aggregated framing results, users can explore variations in contextual portrayal patterns across different reporting environments and time periods.
                   </p>
                 </div>
                 <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
                   <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Line Chart: Connecting News to Reality
+                    Line Chart: Temporal Framing Trends
                   </span>
                   <p className="text-justify">
-                    This timeline lets you interpret how media coverage reacts
-                    to real world events. By tracking the rises and falls of
-                    specific framings over time, you can see if spikes in
-                    "Aggressor" or "Defensive" labels directly correlate with
-                    major geopolitical incidents like water cannon encounters or
-                    diplomatic protests.
+                    This visualization presents changes in framing distributions over time. Users may examine how contextual framing patterns shift across reporting periods and major geopolitical developments related to the West Philippine Sea dispute.
                   </p>
                 </div>
                 <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
                   <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {useGeneralizedEntities
-                      ? "Heatmap: Seeing the Big Picture"
+                      ? "Heatmap: Aggregated Framing Patterns"
                       : "Table: Auditing the Raw Data"}
                   </span>
                   <p className="text-justify">
                     {useGeneralizedEntities
-                      ? "This view helps you analyze broad patterns by grouping individual entities into major state actors. The darker the color, the more frequently that group is given a specific framing label, letting you instantly spot overarching national narratives across different outlets."
-                      : "This view lets you dive into the granular data to verify our machine learning results. By reading the actual news sentences, you can interpret the context yourself and see the exact rhetoric journalists used that led to a specific framing classification."}
+                      ? "This heatmap visualizes aggregated framing distributions across generalized entity groups and news outlets. Darker values indicate stronger concentrations of specific framing categories within the selected analytical context."
+                      : "This table displays sentence-level entity framing outputs generated by the transformer models. Users can review contextual examples, entities, framing classifications, source outlets, and publication dates associated with the dataset."}
                   </p>
                 </div>
               </div>
@@ -462,10 +448,10 @@ const Coverage = () => {
                 </svg>
                 <h3 className="text-xs font-bold tracking-wider uppercase">
                   {selectedEntity === "All" &&
-                  selectedEntityLabel === "All" &&
-                  selectedOutlet === "All" &&
-                  !startDate &&
-                  !endDate
+                    selectedEntityLabel === "All" &&
+                    selectedOutlet === "All" &&
+                    !startDate &&
+                    !endDate
                     ? "Current View: Dashboard Overview"
                     : "Current View: Filtered Analysis"}
                 </h3>
@@ -527,22 +513,20 @@ const Coverage = () => {
                   type="button"
                   role="switch"
                   aria-checked={useGeneralizedEntities}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-2 py-1 text-xs font-medium transition ${
-                    useGeneralizedEntities
-                      ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                      : "bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-                  }`}
+                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-2 py-1 text-xs font-medium transition ${useGeneralizedEntities
+                    ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                    : "bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    }`}
                   onClick={() => {
                     setUseGeneralizedEntities((previous) => !previous);
                     setSelectedEntity("All");
                   }}
                 >
                   <span
-                    className={`inline-block h-2.5 w-2.5 rounded-full ${
-                      useGeneralizedEntities
-                        ? "bg-white"
-                        : "bg-slate-500 dark:bg-slate-300"
-                    }`}
+                    className={`inline-block h-2.5 w-2.5 rounded-full ${useGeneralizedEntities
+                      ? "bg-white"
+                      : "bg-slate-500 dark:bg-slate-300"
+                      }`}
                   />
                   Generalize
                 </button>
