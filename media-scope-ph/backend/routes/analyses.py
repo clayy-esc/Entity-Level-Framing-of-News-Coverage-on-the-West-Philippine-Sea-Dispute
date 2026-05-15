@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import requests
 import re
+from collections import defaultdict
 
 from database import get_db
 from models import Analysis, AnalysisEntity
@@ -238,7 +239,164 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
         "results": results
     }
 
+@router.post("/analyze-article")
+def analyze_article(payload: dict):
 
+    """
+    Perform article-level entity framing analysis.
+
+    Workflow:
+    1. Split article into sentences
+    2. Loop through selected entities
+    3. Run framing analysis per sentence
+    4. Aggregate framing labels
+    5. Return article-level summary
+    """
+
+    article = payload.get("article", "").strip()
+    entities = payload.get("entities", [])
+    model = payload.get("model", "model1")
+
+    if not article:
+        raise HTTPException(
+            status_code=400,
+            detail="Article is required"
+        )
+
+    if not entities:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one entity is required"
+        )
+
+    mapped_model = model_map.get(model)
+
+    if not mapped_model:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid model selected"
+        )
+
+    # =========================
+    # SPLIT ARTICLE INTO SENTENCES
+    # =========================
+
+    sentences = re.split(
+        r'(?<=[.!?])\s+',
+        article
+    )
+
+    # =========================
+    # STORE RESULTS
+    # =========================
+
+    sentence_results = []
+
+    entity_summary = defaultdict(
+        lambda: {
+            "Aggressor": 0,
+            "Defensive": 0,
+            "Legitimate": 0,
+            "Neutral": 0
+        }
+    )
+
+    # =========================
+    # PROCESS EACH SENTENCE
+    # =========================
+
+    for sentence in sentences:
+
+        sentence = sentence.strip()
+
+        if not sentence:
+            continue
+
+        sentence_entities = []
+        seen_entities = set()
+
+        # =========================
+        # LOOP THROUGH ENTITIES
+        # =========================
+
+        for entity_text in entities:
+
+            # Skip if entity not inside sentence
+            if entity_text not in sentence:
+                continue
+
+            try:
+
+                response = requests.post(
+                    HF_URL,
+                    json={
+                        "sentence": sentence,
+                        "entity": entity_text,
+                        "model": mapped_model
+                    },
+                    timeout=20
+                )
+
+                if response.status_code != 200:
+                    continue
+
+                label = response.json()["label"]
+
+                normalized_entity = re.sub(
+                    r'[.,!?;:]+$',
+                    '',
+                    entity_text.strip()
+                )
+
+                key = (normalized_entity, label)
+
+                # prevent duplicates inside same sentence
+                if key in seen_entities:
+                    continue
+
+                seen_entities.add(key)
+
+                sentence_entities.append({
+                    "entity_text": normalized_entity,
+                    "framing_label": label
+                })
+
+                # =========================
+                # UPDATE SUMMARY COUNTS
+                # =========================
+
+                entity_summary[normalized_entity][label] += 1
+
+            except Exception:
+                continue
+
+        # Save sentence-level results
+        sentence_results.append({
+            "sentence": sentence,
+            "entities": sentence_entities
+        })
+
+    # =========================
+    # COMPUTE FINAL SUMMARY
+    # =========================
+
+    final_summary = []
+
+    for entity, counts in entity_summary.items():
+
+        final_summary.append({
+            "entity": entity,
+            "Aggressor": counts["Aggressor"],
+            "Defensive": counts["Defensive"],
+            "Legitimate": counts["Legitimate"],
+            "Neutral": counts["Neutral"]
+        })
+
+    return {
+        "sentence_results": sentence_results,
+        "entity_summary": final_summary
+    }
+    
 @router.get("/analyses")
 def get_analyses(page: int = 1, limit: int = 5, db: Session = Depends(get_db)):
     """

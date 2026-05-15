@@ -37,12 +37,54 @@ import pdfFile from "../assets/ELF_Annotation_Guide.pdf";
 
 const Report = () => {
   const API = import.meta.env.VITE_API_URL + "/api";
+  const NER_API = "https://unknownaut-entity-ner-api.hf.space/predict";
 
-  const [text, setText] = useState("");
-  const [entities, setEntities] = useState([]);
-  const [results, setResults] = useState([]);
+  const [mode, setMode] = useState("sentence");
+
+  // Sentence Analyzer states
+  const [sentenceText, setSentenceText] = useState("");
+  const [sentenceEntities, setSentenceEntities] = useState([]);
+  const [sentenceResults, setSentenceResults] = useState([]);
+
+  // Article Analyzer states
+  const [articleText, setArticleText] = useState("");
+  const [articleEntities, setArticleEntities] = useState([]);
+  const [articleResults, setArticleResults] = useState([]);
+
+  const text =
+    mode === "sentence"
+      ? sentenceText
+      : articleText;
+
+  const setText =
+    mode === "sentence"
+      ? setSentenceText
+      : setArticleText;
+
+  const entities =
+    mode === "sentence"
+      ? sentenceEntities
+      : articleEntities;
+
+  const setEntities =
+    mode === "sentence"
+      ? setSentenceEntities
+      : setArticleEntities;
+
+  const results =
+    mode === "sentence"
+      ? sentenceResults
+      : articleResults;
+
+  const setResults =
+    mode === "sentence"
+      ? setSentenceResults
+      : setArticleResults;
+
+  const [articleSummary, setArticleSummary] = useState([]);
   const [model, setModel] = useState("model1");
   const [loading, setLoading] = useState(false);
+  const [detecting, setDetecting] = useState(false);
 
   // Community history
   const [analyses, setAnalyses] = useState([]);
@@ -234,8 +276,59 @@ const Report = () => {
     setEntities((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleAutoDetect = async () => {
+    if (!text.trim()) return;
+
+    setDetecting(true);
+
+    try {
+      const res = await fetch(NER_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sentence: text,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.entities) return;
+
+      const formatted = data.entities.map((e) => ({
+        start: e.start,
+        end: e.end,
+      }));
+
+      const unique = formatted.filter(
+        (item, index, self) =>
+          index ===
+          self.findIndex(
+            (t) => t.start === item.start && t.end === item.end,
+          ),
+      );
+
+      setEntities(unique);
+      setResults([]);
+      lastAnalysisRef.current = null;
+      setDuplicateMessage(null);
+
+    } catch (err) {
+      console.error("NER Error:", err);
+    }
+
+    setDetecting(false);
+  };
+
   const entityTexts = useMemo(
-    () => entities.map((ent) => text.slice(ent.start, ent.end)),
+    () =>
+      entities.map((ent) =>
+        text
+          .slice(ent.start, ent.end)
+          .trim()
+          .replace(/[.,!?;:]+$/g, "")
+      ),
     [entities, text],
   );
 
@@ -255,7 +348,11 @@ const Report = () => {
 
   const wordCount = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
 
-  const isTooLong = wordCount > 120;
+  const maxWords =
+    mode === "sentence" ? 120 : 400;
+
+  const isTooLong =
+    wordCount > maxWords;
 
   // =========================
   // REAL-TIME FRAMING ANALYSIS
@@ -342,6 +439,48 @@ const Report = () => {
     setLoading(false);
   };
 
+  const handleArticleAnalyze = async () => {
+
+    if (!text.trim()) return;
+
+    if (entityTexts.length === 0) return;
+
+    setLoading(true);
+
+    try {
+
+      const res = await fetch(
+        `${API}/analyze-article`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            article: text,
+            entities: entityTexts,
+            model: model,
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      setArticleResults(
+        data.sentence_results || [],
+      );
+
+      setArticleSummary(
+        data.entity_summary || [],
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
+
+    setLoading(false);
+  };
+
   const handleClear = () => {
     setText("");
     setEntities([]);
@@ -390,11 +529,10 @@ const Report = () => {
           key={i}
           onClick={() => handleDelete(originalIndex)}
           title="Click to remove"
-          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${
-            result
-              ? colorMap[result.framing_label]
-              : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
-          } hover:ring-2 hover:ring-red-400`}
+          className={`group relative cursor-pointer rounded px-1 transition-all duration-200 ${result
+            ? colorMap[result.framing_label]
+            : "border border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-400 dark:bg-yellow-400/20 dark:text-yellow-200"
+            } hover:ring-2 hover:ring-red-400`}
         >
           {entityText}
           <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 group-hover:opacity-100">
@@ -516,44 +654,92 @@ const Report = () => {
                 Annotation Guide
               </button>
             </div>
-            <p className="mt-2 mb-4 text-sm text-slate-700 dark:text-slate-300">
-              Enter a sentence and highlight entities.
-            </p>
+            <div className="mt-2 mb-4">
 
+              <div className="mb-4 flex gap-2">
+
+                <button
+                  onClick={() => setMode("sentence")}
+                  className={`rounded-md px-4 py-2 text-sm font-medium ${mode === "sentence"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-800 text-slate-300"
+                    }`}
+                >
+                  Sentence Analyzer
+                </button>
+
+                <button
+                  onClick={() => setMode("article")}
+                  className={`rounded-md px-4 py-2 text-sm font-medium ${mode === "article"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-800 text-slate-300"
+                    }`}
+                >
+                  Article Analyzer
+                </button>
+
+              </div>
+
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                {mode === "sentence"
+                  ? "Enter a sentence and highlight entities."
+                  : "Paste a full article and analyze entity framing across sentences."}
+              </p>
+
+            </div>
             <textarea
               value={text}
               onChange={(e) => {
-                setText(e.target.value);
-                setEntities([]);
+                const newText = e.target.value;
+
+                setText(newText);
+
+                // Keep only valid entities
+                setEntities((prev) =>
+                  prev.filter(
+                    (ent) =>
+                      ent.end <= newText.length &&
+                      newText.slice(ent.start, ent.end).trim() !== ""
+                  )
+                );
+
+                // Clear sentence results only
                 setResults([]);
+
+                // Clear article results only
+                setArticleResults([]);
+                setArticleSummary([]);
+
                 lastAnalysisRef.current = null;
                 setDuplicateMessage(null);
               }}
-              placeholder="Enter a sentence..."
-              className={`w-full cursor-text rounded-md border p-3 text-sm transition focus:ring-1 focus:outline-none ${
-                isTooLong
-                  ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                  : "border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-              } bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100`}
+              placeholder={
+                mode === "sentence"
+                  ? "Enter a sentence..."
+                  : "Paste full article..."
+              }
+              className={`w-full cursor-text rounded-md border p-3 text-sm transition focus:ring-1 focus:outline-none ${isTooLong
+                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                : "border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                } bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100`}
             />
 
             <div className="mt-2 mb-3 space-y-1">
               <p
-                className={`text-xs ${
-                  isTooLong
-                    ? "text-red-500"
-                    : wordCount > 100
-                      ? "text-yellow-500"
-                      : "text-slate-500"
-                }`}
+                className={`text-xs ${isTooLong
+                  ? "text-red-500"
+                  : wordCount > maxWords * 0.85
+                    ? "text-yellow-500"
+                    : "text-slate-500"
+                  }`}
               >
-                {wordCount} / <span className="font-semibold">120</span> words
+                {wordCount} / <span className="font-semibold">{maxWords}</span> words
               </p>
 
               {isTooLong && (
                 <p className="text-xs text-red-500">
                   Input exceeds recommended length. The model may truncate the
-                  sentence, which can affect accuracy.
+                  content, which can affect accuracy.
                 </p>
               )}
             </div>
@@ -603,23 +789,49 @@ const Report = () => {
               {/* LEFT: ACTION BUTTONS */}
               <div className="flex gap-2">
                 <button
-                  onClick={handleAnalyze}
+                  onClick={handleAutoDetect}
+                  disabled={!text.trim() || detecting || loading}
+                  title={
+                    detecting
+                      ? "Detecting entities..."
+                      : "Automatically detect named entities"
+                  }
+                  className="flex cursor-pointer items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {detecting && (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  )}
+
+                  {detecting ? "Detecting..." : "Auto Detect"}
+                </button>
+                {/* ANALYZE BUTTON*/}
+                <button
+                  onClick={
+                    mode === "sentence"
+                      ? handleAnalyze
+                      : handleArticleAnalyze
+                  }
                   disabled={
                     loading ||
+                    detecting ||
                     entities.length === 0 ||
-                    isSameAsLast ||
-                    isTooLong
+                    (mode === "sentence" && isSameAsLast) ||
+                    (mode === "sentence" && isTooLong)
                   }
                   title={
-                    loading
-                      ? "Processing..."
-                      : isTooLong
-                        ? "Text too long (max 120 words for accurate analysis)"
-                        : entities.length === 0
-                          ? "Select/Highlight at least one entity"
-                          : isSameAsLast
-                            ? "No changes to analyze"
-                            : "Analyze selected entities"
+                    detecting
+                      ? "Wait for entity detection to finish"
+                      : loading
+                        ? "Processing..."
+                        : isTooLong && mode === "sentence"
+                          ? `Text too long (max ${maxWords} words for accurate analysis)`
+                          : entities.length === 0
+                            ? "Select/Highlight at least one entity"
+                            : isSameAsLast && mode === "sentence"
+                              ? "No changes to analyze"
+                              : mode === "sentence"
+                                ? "Analyze selected entities"
+                                : "Analyze article framing"
                   }
                   className="flex cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >
@@ -627,7 +839,11 @@ const Report = () => {
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                   )}
 
-                  {loading ? "Analyzing..." : "Analyze Sentence"}
+                  {loading
+                    ? "Analyzing..."
+                    : mode === "sentence"
+                      ? "Analyze Sentence"
+                      : "Analyze Article"}
                 </button>
 
                 <button
@@ -655,6 +871,125 @@ const Report = () => {
               </div>
             </div>
           </div>
+
+          {mode === "article" &&
+            articleResults.length > 0 && (
+
+              <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
+
+                <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Sentence-Level Results
+                </h2>
+
+                <div className="space-y-4">
+
+                  {articleResults
+                    .filter((item) => item.entities?.length > 0)
+                    .map((item, idx) => (
+
+                      <div
+                        key={idx}
+                        className="rounded-lg border border-slate-200 p-4 dark:border-slate-700"
+                      >
+                        <p className="mb-3 text-sm text-slate-700 dark:text-slate-300">
+                          {item.sentence}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+
+                          {[
+                            ...new Map(
+                              item.entities.map((e) => [
+                                `${e.entity_text}-${e.framing_label}`,
+                                e,
+                              ])
+                            ).values(),
+                          ].map((e, i) => (
+
+                            <span
+                              key={i}
+                              className={`rounded px-2 py-1 text-xs ${colorMap[e.framing_label]
+                                }`}
+                            >
+                              {e.entity_text} → {e.framing_label}
+                            </span>
+
+                          ))}
+
+                        </div>
+
+                      </div>
+
+                    ))}
+
+                </div>
+
+              </div>
+            )}
+
+          {mode === "article" &&
+            articleSummary.length > 0 && (
+
+              <div className="rounded-xl bg-white p-6 shadow-md dark:bg-slate-900">
+
+                <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Article Framing Summary
+                </h2>
+
+                <div className="overflow-x-auto">
+
+                  <table className="w-full border-collapse text-sm">
+
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <th className="p-2 text-left">Entity</th>
+                        <th className="p-2">Aggressor</th>
+                        <th className="p-2">Defensive</th>
+                        <th className="p-2">Legitimate</th>
+                        <th className="p-2">Neutral</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      {articleSummary.map((e, i) => (
+
+                        <tr
+                          key={i}
+                          className="border-b border-slate-200 dark:border-slate-700"
+                        >
+                          <td className="p-2 font-medium">
+                            {e.entity}
+                          </td>
+
+                          <td className="p-2 text-center">
+                            {e.Aggressor}
+                          </td>
+
+                          <td className="p-2 text-center">
+                            {e.Defensive}
+                          </td>
+
+                          <td className="p-2 text-center">
+                            {e.Legitimate}
+                          </td>
+
+                          <td className="p-2 text-center">
+                            {e.Neutral}
+                          </td>
+
+                        </tr>
+
+                      ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </div>
+            )}
 
           {/* 
           ========================================
@@ -847,15 +1182,13 @@ const Report = () => {
                             ref={(el) => {
                               if (i === 0) rowRefs.current[a.id] = el;
                             }}
-                            className={`bg-white dark:bg-slate-700/50 ${
-                              i !== a.entities.length - 1
-                                ? "border-b border-slate-200 dark:border-slate-600"
-                                : ""
-                            } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${
-                              a.id === highlightId
+                            className={`bg-white dark:bg-slate-700/50 ${i !== a.entities.length - 1
+                              ? "border-b border-slate-200 dark:border-slate-600"
+                              : ""
+                              } ${a.id === latestAnalysisId ? "animate-fadeInUp" : ""} ${a.id === highlightId
                                 ? "bg-yellow-100 dark:bg-yellow-500/10"
                                 : ""
-                            }`}
+                              }`}
                           >
                             {/* Sentence */}
                             {i === 0 && (
@@ -889,10 +1222,9 @@ const Report = () => {
                             {/* Model */}
                             <td className="px-4 py-4 text-center">
                               <span
-                                className={`rounded px-2 py-1 text-xs ${
-                                  modelColorMap[a.model] ||
+                                className={`rounded px-2 py-1 text-xs ${modelColorMap[a.model] ||
                                   "bg-gray-500/20 text-gray-300"
-                                }`}
+                                  }`}
                               >
                                 {a.model}
                               </span>
