@@ -484,7 +484,14 @@ const Report = () => {
   const handleClear = () => {
     setText("");
     setEntities([]);
+
+    // sentence results
     setResults([]);
+
+    // article results
+    setArticleResults([]);
+    setArticleSummary([]);
+
     lastAnalysisRef.current = null;
     setDuplicateMessage(null);
   };
@@ -642,7 +649,7 @@ const Report = () => {
                   className="text-slate-900 dark:text-slate-100"
                 />
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                  Real-Time Sentence Analyzer
+                  Real-Time Framing Analyzer
                 </h2>
               </div>
               <button
@@ -703,15 +710,16 @@ const Report = () => {
                   )
                 );
 
-                // Clear sentence results only
-                setResults([]);
+                // ONLY clear when textarea becomes empty
+                if (newText.trim() === "") {
+                  setResults([]);
 
-                // Clear article results only
-                setArticleResults([]);
-                setArticleSummary([]);
+                  setArticleResults([]);
+                  setArticleSummary([]);
 
-                lastAnalysisRef.current = null;
-                setDuplicateMessage(null);
+                  lastAnalysisRef.current = null;
+                  setDuplicateMessage(null);
+                }
               }}
               placeholder={
                 mode === "sentence"

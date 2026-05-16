@@ -121,18 +121,15 @@ const Methodology = () => {
           {openSections.section3 && (
             <div className="space-y-2 px-8 pb-8 text-justify">
               <p>
-                The dataset underwent a structured preprocessing pipeline,
-                including text cleaning, normalization, and sentence
-                segmentation. Non-editorial elements such as advertisements and
-                navigation components were removed to retain only relevant
-                textual content.
+                The dataset underwent a structured preprocessing pipeline, including text cleaning,
+                normalization, and sentence segmentation. Non-editorial elements such as advertisements
+                and navigation components were removed to retain only relevant textual content.
               </p>
               <p>
-                Relevant articles were identified using LLM-assisted filtering,
-                followed by Named Entity Recognition (NER) to extract candidate
-                entities. Each entity was manually reviewed and annotated with
-                one of four framing labels based on its contextual portrayal
-                within the sentence.
+                Relevant articles were identified through dataset filtering, followed by 
+                Named Entity Recognition (NER) to extract candidate entities. Each entity was 
+                manually reviewed and annotated with one of four framing labels based on its 
+                contextual portrayal within the sentence.
               </p>
             </div>
           )}

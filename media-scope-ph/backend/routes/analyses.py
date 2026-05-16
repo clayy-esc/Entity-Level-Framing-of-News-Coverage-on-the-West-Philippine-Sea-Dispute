@@ -315,15 +315,32 @@ def analyze_article(payload: dict):
         sentence_entities = []
         seen_entities = set()
 
+        # track matched entity spans
+        matched_spans = []
+
         # =========================
         # LOOP THROUGH ENTITIES
         # =========================
 
         for entity_text in entities:
 
-            # Skip if entity not inside sentence
-            if entity_text not in sentence:
+            match_index = sentence.find(entity_text)
+
+            if match_index == -1:
                 continue
+
+            match_end = match_index + len(entity_text)
+
+            # prevent nested duplicate entities
+            overlapping = any(
+                match_index >= start and match_end <= end
+                for start, end in matched_spans
+            )
+
+            if overlapping:
+                continue
+
+            matched_spans.append((match_index, match_end))
 
             try:
 
@@ -348,7 +365,17 @@ def analyze_article(payload: dict):
                     entity_text.strip()
                 )
 
-                key = (normalized_entity, label)
+                # remove duplicate spaces
+                normalized_entity = re.sub(
+                    r'\s+',
+                    ' ',
+                    normalized_entity
+                )
+
+                key = (
+                    normalized_entity.lower(),
+                    label.lower()
+                )
 
                 # prevent duplicates inside same sentence
                 if key in seen_entities:
