@@ -84,6 +84,8 @@ const Report = () => {
   const [articleSummary, setArticleSummary] = useState([]);
   const [model, setModel] = useState("model1");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [detecting, setDetecting] = useState(false);
 
   // Community history
@@ -179,6 +181,32 @@ const Report = () => {
       block: "start",
     });
   }, [page]);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      setErrorMessage(null);
+    };
+
+    const handleOffline = () => {
+      setIsOffline(true);
+
+      setErrorMessage(
+        "Internet connection lost. Please check your network."
+      );
+
+      setResults([]);
+      setArticleResults([]);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   // =========================
   // ENTITY TOKEN SELECTION LOGIC
@@ -321,14 +349,16 @@ const Report = () => {
     setDetecting(false);
   };
 
-  const entityTexts = useMemo(
+  const payloadEntities = useMemo(
     () =>
-      entities.map((ent) =>
-        text
+      entities.map((ent) => ({
+        text: text
           .slice(ent.start, ent.end)
           .trim()
-          .replace(/[.,!?;:]+$/g, "")
-      ),
+          .replace(/[.,!?;:]+$/g, ""),
+        start: ent.start,
+        end: ent.end,
+      })),
     [entities, text],
   );
 
@@ -336,10 +366,10 @@ const Report = () => {
     () =>
       JSON.stringify({
         sentence: text,
-        entities: entityTexts,
+        entities: payloadEntities,
         model: model,
       }),
-    [text, entityTexts, model],
+    [text, payloadEntities, model],
   );
 
   const isSameAsLast =
@@ -385,19 +415,50 @@ const Report = () => {
     if (isSameAsLast) return;
 
     setLoading(true);
+    setErrorMessage(null);
+
+    if (!navigator.onLine) {
+      setLoading(false);
+      setErrorMessage(
+        "You are currently offline. Please reconnect and try again."
+      );
+      return;
+    }
 
     try {
+      const controller = new AbortController();
+
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 15000);
+
       const res = await fetch(`${API}/analyze-batch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           sentence: text,
-          entities: entityTexts,
+          entities: payloadEntities,
           model: model,
         }),
       });
 
-      const data = await res.json();
+      let data;
+
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Invalid server response");
+      }
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.detail ||
+          "Server error occurred during analysis"
+        );
+      }
 
       // attach model for UI consistency
       const enriched = (data.results || []).map((r) => ({
@@ -433,17 +494,37 @@ const Report = () => {
       await fetchAnalyses();
     } catch (error) {
       console.error("Error:", error);
-      setDuplicateMessage(null);
-    }
 
-    setLoading(false);
+      setDuplicateMessage(null);
+      setResults([]);
+
+      if (error.name === "AbortError") {
+        setErrorMessage(
+          "Analysis timed out. The internet or server may be slow."
+        );
+      } else if (!navigator.onLine) {
+        setErrorMessage(
+          "Internet connection lost during analysis."
+        );
+      } else if (
+        error.message.includes("Failed to fetch")
+      ) {
+        setErrorMessage(
+          "Cannot connect to server. Please check your internet connection."
+        );
+      } else {
+        setErrorMessage(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleArticleAnalyze = async () => {
 
     if (!text.trim()) return;
 
-    if (entityTexts.length === 0) return;
+    if (payloadEntities.length === 0) return;
 
     setLoading(true);
 
@@ -458,7 +539,7 @@ const Report = () => {
           },
           body: JSON.stringify({
             article: text,
-            entities: entityTexts,
+            entities: payloadEntities,
             model: model,
           }),
         },
@@ -775,12 +856,12 @@ const Report = () => {
 
                 {/* Entity chips */}
                 <div className="flex flex-wrap gap-1">
-                  {entityTexts.map((ent, i) => (
+                  {payloadEntities.map((ent, i) => (
                     <span
                       key={i}
                       className="rounded-md bg-slate-200 px-2 py-0.5 text-slate-700 dark:bg-slate-700 dark:text-slate-200"
                     >
-                      {ent}
+                      {ent.text}
                     </span>
                   ))}
                 </div>
@@ -795,7 +876,7 @@ const Report = () => {
             {/* CONTROL ROW */}
             <div className="mt-4 flex items-end justify-between">
               {/* LEFT: ACTION BUTTONS */}
-              <div className="flex gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={handleAutoDetect}
                   disabled={!text.trim() || detecting || loading}
@@ -822,24 +903,27 @@ const Report = () => {
                   disabled={
                     loading ||
                     detecting ||
+                    isOffline ||
                     entities.length === 0 ||
                     (mode === "sentence" && isSameAsLast) ||
                     (mode === "sentence" && isTooLong)
                   }
                   title={
-                    detecting
-                      ? "Wait for entity detection to finish"
-                      : loading
-                        ? "Processing..."
-                        : isTooLong && mode === "sentence"
-                          ? `Text too long (max ${maxWords} words for accurate analysis)`
-                          : entities.length === 0
-                            ? "Select/Highlight at least one entity"
-                            : isSameAsLast && mode === "sentence"
-                              ? "No changes to analyze"
-                              : mode === "sentence"
-                                ? "Analyze selected entities"
-                                : "Analyze article framing"
+                    isOffline
+                      ? "No internet connection"
+                      : detecting
+                        ? "Wait for entity detection to finish"
+                        : loading
+                          ? "Processing..."
+                          : isTooLong && mode === "sentence"
+                            ? `Text too long (max ${maxWords} words for accurate analysis)`
+                            : entities.length === 0
+                              ? "Select/Highlight at least one entity"
+                              : isSameAsLast && mode === "sentence"
+                                ? "No changes to analyze"
+                                : mode === "sentence"
+                                  ? "Analyze selected entities"
+                                  : "Analyze article framing"
                   }
                   className="flex cursor-pointer items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >
@@ -860,6 +944,19 @@ const Report = () => {
                 >
                   Clear
                 </button>
+
+                {/* CONNECTION STATUS */}
+                <div className="text-xs">
+                  {isOffline ? (
+                    <span className="text-red-500">
+                      Offline
+                    </span>
+                  ) : (
+                    <span className="text-green-500">
+                      Online
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* RIGHT: MODEL SELECT */}
@@ -1057,6 +1154,13 @@ const Report = () => {
                   jump to saved result
                 </span>
               </span>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="mt-3 flex items-center gap-2 rounded border border-red-300 bg-red-100 px-3 py-2 text-xs text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+              <AlertTriangle size={16} />
+              <span>{errorMessage}</span>
             </div>
           )}
 

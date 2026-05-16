@@ -113,7 +113,10 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
     # Normalize sentence and entities to ensure
     # consistent duplicate detection.
     normalized_sentence = normalize(data.sentence)
-    normalized_entities = sorted([normalize(e) for e in data.entities])
+    normalized_entities = sorted([
+        normalize(e.text)
+        for e in data.entities
+    ])
 
      # Generate unique fingerprint for duplicate checking.
     fingerprint = (
@@ -152,8 +155,7 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
     try:
         db.add(analysis)
-        db.commit()
-        db.refresh(analysis)
+        db.flush()  # temporary ID without commit
     except IntegrityError:
         """
         Handles race-condition duplicates where another request
@@ -183,11 +185,14 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
     try:
         # Perform framing prediction for each selected entity.
         for entity in data.entities:
+
+            entity_text = entity.text
+
             response = requests.post(
                 HF_URL,
                 json={
                     "sentence": data.sentence,
-                    "entity": entity,
+                    "entity": entity_text,
                     "model": mapped_model
                 },
                 timeout=10
@@ -205,18 +210,21 @@ def analyze_batch(data: BatchRequest, db: Session = Depends(get_db)):
 
             db.add(AnalysisEntity(
                 analysis_id=analysis.id,
-                entity_text=entity,
+                entity_text=entity_text,
                 framing_label=label
             ))
 
             results.append({
-                "entity_text": entity,
+                "entity_text": entity_text,
                 "framing_label": label
             })
 
         db.commit()
 
-    except requests.exceptions.Timeout:
+    except (
+        requests.exceptions.Timeout,
+        requests.exceptions.ConnectionError
+    ):
         """
         Handles timeout failures from the external
         HuggingFace inference service.
@@ -281,9 +289,8 @@ def analyze_article(payload: dict):
     # SPLIT ARTICLE INTO SENTENCES
     # =========================
 
-    sentences = re.split(
-        r'(?<=[.!?])\s+',
-        article
+    sentence_matches = list(
+        re.finditer(r'[^.!?]+[.!?]?', article)
     )
 
     # =========================
@@ -305,42 +312,27 @@ def analyze_article(payload: dict):
     # PROCESS EACH SENTENCE
     # =========================
 
-    for sentence in sentences:
+    for entity in entities:
 
-        sentence = sentence.strip()
+        entity_text = entity["text"] if isinstance(entity, dict) else entity.text
+        entity_start = entity["start"] if isinstance(entity, dict) else entity.start
+        entity_end = entity["end"] if isinstance(entity, dict) else entity.end
 
-        if not sentence:
-            continue
+        for match in sentence_matches:
 
-        sentence_entities = []
-        seen_entities = set()
+            sentence = match.group().strip()
+            sentence_start = match.start()
+            sentence_end = match.end()
 
-        # track matched entity spans
-        matched_spans = []
-
-        # =========================
-        # LOOP THROUGH ENTITIES
-        # =========================
-
-        for entity_text in entities:
-
-            match_index = sentence.find(entity_text)
-
-            if match_index == -1:
+            if not sentence:
                 continue
 
-            match_end = match_index + len(entity_text)
-
-            # prevent nested duplicate entities
-            overlapping = any(
-                match_index >= start and match_end <= end
-                for start, end in matched_spans
-            )
-
-            if overlapping:
+            # analyze ONLY if highlighted span belongs to this sentence
+            if not (
+                entity_start >= sentence_start and
+                entity_end <= sentence_end
+            ):
                 continue
-
-            matched_spans.append((match_index, match_end))
 
             try:
 
@@ -365,43 +357,24 @@ def analyze_article(payload: dict):
                     entity_text.strip()
                 )
 
-                # remove duplicate spaces
                 normalized_entity = re.sub(
                     r'\s+',
                     ' ',
                     normalized_entity
                 )
 
-                key = (
-                    normalized_entity.lower(),
-                    label.lower()
-                )
-
-                # prevent duplicates inside same sentence
-                if key in seen_entities:
-                    continue
-
-                seen_entities.add(key)
-
-                sentence_entities.append({
-                    "entity_text": normalized_entity,
-                    "framing_label": label
+                sentence_results.append({
+                    "sentence": sentence,
+                    "entities": [{
+                        "entity_text": normalized_entity,
+                        "framing_label": label
+                    }]
                 })
-
-                # =========================
-                # UPDATE SUMMARY COUNTS
-                # =========================
 
                 entity_summary[normalized_entity][label] += 1
 
             except Exception:
                 continue
-
-        # Save sentence-level results
-        sentence_results.append({
-            "sentence": sentence,
-            "entities": sentence_entities
-        })
 
     # =========================
     # COMPUTE FINAL SUMMARY

@@ -25,6 +25,11 @@ from typing import List, Literal
 
 ModelType = Literal["model1", "model2"]
 
+class EntitySpan(BaseModel):
+    text: str
+    start: int
+    end: int
+
 
 class BatchRequest(BaseModel):
     """
@@ -55,7 +60,11 @@ class BatchRequest(BaseModel):
     # - maximum entities: 5
     # The limit helps control inference load
     # and prevents excessive API requests.
-    entities: List[str] = Field(..., min_length=1, max_length=5)
+    entities: List[EntitySpan] = Field(
+    ...,
+    min_length=1,
+    max_length=10
+)
 
     # Selected transformer model identifier.
     # Accepted values:
@@ -93,7 +102,7 @@ class BatchRequest(BaseModel):
 
     @field_validator("entities")
     @classmethod
-    def validate_entities(cls, v: List[str]):
+    def validate_entities(cls, v: List[EntitySpan]):
         """
         Validate and normalize entity selections.
 
@@ -118,12 +127,13 @@ class BatchRequest(BaseModel):
 
         cleaned = []
         for entity in v:
-            entity = entity.strip()
 
-            if not entity:
+            entity.text = entity.text.strip()
+
+            if not entity.text:
                 raise ValueError("Entity cannot be empty")
 
-            if len(entity) > 200:
+            if len(entity.text) > 200:
                 raise ValueError("Entity too long (max 200 chars)")
 
             cleaned.append(entity)
