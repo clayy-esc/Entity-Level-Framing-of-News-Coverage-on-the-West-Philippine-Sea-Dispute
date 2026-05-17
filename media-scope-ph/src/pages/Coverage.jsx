@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronUp, Info } from "lucide-react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -401,185 +401,24 @@ const Coverage = () => {
               </p>
             </div>
           </div>
-          <div className="mb-2 flex flex-col gap-4">
-            {/* Context/Analytical Guide */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-800 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/40">
-              <button
-                className="group flex w-full cursor-pointer items-center justify-between outline-none"
-                onClick={() => setIsGuideOpen(!isGuideOpen)}
-              >
-                <h3 className="text-base font-bold text-blue-700 transition-colors group-hover:text-blue-800 dark:text-blue-400 dark:group-hover:text-blue-300">
-                  How to Read This Dashboard
-                </h3>
-                {isGuideOpen ? (
-                  <ChevronUp
-                    size={20}
-                    className="text-blue-700 transition-colors group-hover:text-blue-800 dark:text-blue-400 dark:group-hover:text-blue-300"
-                  />
-                ) : (
-                  <ChevronDown
-                    size={20}
-                    className="text-blue-700 transition-colors group-hover:text-blue-800 dark:text-blue-400 dark:group-hover:text-blue-300"
-                  />
-                )}
-              </button>
-
-              {isGuideOpen && (
-                <div className="mt-5 flex flex-col gap-5">
-                  <div className="flex flex-col items-end gap-4">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsPdfOpen(true);
-                      }}
-                      className="flex shrink-0 cursor-pointer items-center gap-1 rounded-md bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-800 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                    >
-                      <BookOpen size={16} />
-                      <span className="hidden sm:inline">Annotation Guide</span>
-                      <span className="inline sm:hidden">Guide</span>
-                    </button>
-                    <p className="w-full text-justify leading-relaxed">
-                      This interactive dashboard supports exploratory analysis
-                      of entity-level framing patterns in news coverage related
-                      to the West Philippine Sea dispute. Using
-                      transformer-based Natural Language Processing models, the
-                      system analyzes how entities such as countries,
-                      organizations, and government agencies are contextually
-                      represented within sentence-level discourse. Instead of
-                      measuring overall positive or negative sentiment, the
-                      system classifies entities into four contextual framing
-                      categories: Legitimate, Aggressor, Defensive, and Neutral.
-                      These classifications are generated from linguistic and
-                      contextual cues within the surrounding sentence. The
-                      visualizations below allow users to explore framing
-                      distributions, temporal framing trends, and aggregated
-                      contextual portrayals across different news sources. The
-                      dashboard is intended to support comparative and
-                      research-oriented analysis of geopolitical news discourse.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                      <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        Bar Chart: Framing Distribution Across News Sources
-                      </span>
-                      <p className="text-justify">
-                        This chart displays the distribution of entity-level
-                        framing categories across selected news outlets. By
-                        comparing aggregated framing results, users can explore
-                        variations in contextual portrayal patterns across
-                        different reporting environments.
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                      <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        Line Chart: Temporal Framing Trends
-                      </span>
-                      <p className="text-justify">
-                        This visualization presents changes in framing
-                        distributions over time. Users may examine how
-                        contextual framing patterns shift across reporting
-                        periods and major geopolitical developments related to
-                        the West Philippine Sea dispute.
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                      <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        Heatmap: Aggregated Framing Patterns
-                      </span>
-                      <p className="text-justify">
-                        This heatmap visualizes aggregated framing distributions
-                        across generalized entity groups and news outlets.
-                        Darker values indicate stronger concentrations of
-                        specific framing categories within the selected
-                        analytical context.
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
-                      <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        Table: Auditing the Raw Data
-                      </span>
-                      <p className="text-justify">
-                        This table displays sentence-level entity framing
-                        outputs generated by the transformer models. Users can
-                        review contextual examples, entities, framing
-                        classifications, source outlets, and publication dates
-                        associated with the dataset.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Dynamic Status Bar - Contextually Highlights Applied Filters */}
-            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900 transition-colors duration-300 dark:border-blue-800/50 dark:bg-blue-900/20 dark:text-blue-100">
-              <div className="mb-2 flex items-center gap-2">
-                <svg
-                  className="h-5 w-5 text-blue-600 dark:text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <h3 className="text-xs font-bold tracking-wider uppercase">
-                  {selectedEntity === "All" &&
-                  selectedEntityLabel === "All" &&
-                  selectedOutlet === "All" &&
-                  !startDate &&
-                  !endDate
-                    ? "Current View: Dashboard Overview"
-                    : "Current View: Filtered Analysis"}
-                </h3>
-              </div>
-              <p className="pl-7 leading-relaxed">
-                You are currently exploring{" "}
-                <strong className="text-blue-700 dark:text-blue-300">
-                  {selectedEntityLabel === "All"
-                    ? "all framing types"
-                    : `${selectedEntityLabel} framing`}
-                </strong>{" "}
-                for{" "}
-                <strong className="text-blue-700 dark:text-blue-300">
-                  {selectedEntity === "All" ? "all entities" : selectedEntity}
-                </strong>{" "}
-                as reported by{" "}
-                <strong className="text-blue-700 dark:text-blue-300">
-                  {selectedOutlet === "All"
-                    ? "all available outlets"
-                    : selectedOutlet}
-                </strong>
-                {(startDate || endDate) && (
-                  <span>
-                    {" "}
-                    from{" "}
-                    <strong className="text-blue-700 dark:text-blue-300">
-                      {startDate
-                        ? dayjs(startDate).format("MMMM D, YYYY")
-                        : "the beginning"}
-                    </strong>{" "}
-                    to{" "}
-                    <strong className="text-blue-700 dark:text-blue-300">
-                      {endDate
-                        ? dayjs(endDate).format("MMMM D, YYYY")
-                        : "the latest record"}
-                    </strong>
-                  </span>
-                )}
-                .{" "}
-                {useGeneralizedEntities
-                  ? " Entities are currently grouped into generalized state actors."
-                  : " Data is shown using the actual raw entities collected."}
-              </p>
-            </div>
+          {/* Guide Buttons */}
+          <div className="mt-6 -mb-2 flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => setIsGuideOpen(true)}
+              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-md bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-800 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <Info size={16} />
+              <span>How to Read Dashboard</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPdfOpen(true)}
+              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-md bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-800 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <BookOpen size={16} />
+              <span>Annotation Guide</span>
+            </button>
           </div>
         </div>
         {/* Filter panel and chart panel layout. */}
@@ -785,6 +624,72 @@ const Coverage = () => {
           </div>
           {/* Charts consume memoized aggregates from filtered dataset rows. */}
           <div className="space-y-4">
+            {/* Dynamic Status Bar - Contextually Highlights Applied Filters */}
+            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900 transition-colors duration-300 dark:border-blue-800/50 dark:bg-blue-900/20 dark:text-blue-100">
+              <div className="mb-2 flex items-center gap-2">
+                <svg
+                  className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <h3 className="text-xs font-bold tracking-wider uppercase">
+                  {selectedEntity === "All" &&
+                  selectedEntityLabel === "All" &&
+                  selectedOutlet === "All" &&
+                  !startDate &&
+                  !endDate
+                    ? "Current View: Dashboard Overview"
+                    : "Current View: Filtered Analysis"}
+                </h3>
+              </div>
+              <p className="pl-7 leading-relaxed">
+                You are currently exploring{" "}
+                <strong className="text-blue-700 dark:text-blue-300">
+                  {selectedEntityLabel === "All"
+                    ? "all framing types"
+                    : `${selectedEntityLabel} framing`}
+                </strong>{" "}
+                for{" "}
+                <strong className="text-blue-700 dark:text-blue-300">
+                  {selectedEntity === "All" ? "all entities" : selectedEntity}
+                </strong>{" "}
+                as reported by{" "}
+                <strong className="text-blue-700 dark:text-blue-300">
+                  {selectedOutlet === "All"
+                    ? "all available outlets"
+                    : selectedOutlet}
+                </strong>
+                {(startDate || endDate) && (
+                  <span>
+                    {" "}
+                    from{" "}
+                    <strong className="text-blue-700 dark:text-blue-300">
+                      {startDate
+                        ? dayjs(startDate).format("MMMM D, YYYY")
+                        : "the beginning"}
+                    </strong>{" "}
+                    to{" "}
+                    <strong className="text-blue-700 dark:text-blue-300">
+                      {endDate
+                        ? dayjs(endDate).format("MMMM D, YYYY")
+                        : "the latest record"}
+                    </strong>
+                  </span>
+                )}
+                .{" "}
+                {useGeneralizedEntities
+                  ? " Entities are currently grouped into generalized state actors."
+                  : " Data is shown using the actual raw entities collected."}
+              </p>
+            </div>
             <div className="rounded-xl bg-white p-4 text-justify shadow-md dark:bg-slate-900">
               <Bar data={barData} />
             </div>
@@ -800,6 +705,109 @@ const Coverage = () => {
             </div>
           </div>
         </section>
+
+        {/* HOW TO READ THIS DASHBOARD DIALOG */}
+        <Dialog
+          open={isGuideOpen}
+          onClose={() => setIsGuideOpen(false)}
+          maxWidth="lg"
+          fullWidth
+          PaperProps={{
+            className:
+              "dark:bg-slate-900 border border-slate-200 dark:border-slate-800",
+          }}
+        >
+          <DialogTitle className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white font-semibold text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+            <span>How to Read This Dashboard</span>
+            <button
+              onClick={() => setIsGuideOpen(false)}
+              className="cursor-pointer text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              ✕
+            </button>
+          </DialogTitle>
+          <DialogContent className="border-none bg-white p-6 dark:bg-slate-900">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <p className="w-full text-justify text-sm leading-relaxed text-slate-800 dark:text-slate-200">
+                  This interactive dashboard supports exploratory analysis of
+                  entity-level framing patterns in news coverage related to the
+                  West Philippine Sea dispute. Using transformer-based Natural
+                  Language Processing models, the system analyzes how entities
+                  such as countries, organizations, and government agencies are
+                  contextually represented within sentence-level discourse.
+                  Instead of measuring overall positive or negative sentiment,
+                  the system classifies entities into four contextual framing
+                  categories: Legitimate, Aggressor, Defensive, and Neutral.
+                  These classifications are generated from linguistic and
+                  contextual cues within the surrounding sentence. The
+                  visualizations below allow users to explore framing
+                  distributions, temporal framing trends, and aggregated
+                  contextual portrayals across different news sources. The
+                  dashboard is intended to support comparative and
+                  research-oriented analysis of geopolitical news discourse.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Bar Chart
+                  </span>
+                  <p className="text-justify text-slate-800 dark:text-slate-200">
+                    The bar chart displays the distribution of entity-level
+                    framing categories across selected news outlets. By
+                    comparing aggregated framing results, users can explore
+                    variations in contextual portrayal patterns across different
+                    reporting environments.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Line Chart
+                  </span>
+                  <p className="text-justify text-slate-800 dark:text-slate-200">
+                    The line chart presents changes in framing distributions
+                    over time. Users may examine how contextual framing patterns
+                    shift across reporting periods and major geopolitical
+                    developments related to the West Philippine Sea dispute.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Heatmap
+                  </span>
+                  <p className="text-justify text-slate-800 dark:text-slate-200">
+                    The heatmap visualizes aggregated framing distributions
+                    across generalized entity groups and news outlets. Darker
+                    values indicate stronger concentrations of specific framing
+                    categories within the selected analytical context.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700/50 dark:bg-slate-800/50">
+                  <span className="mb-2 block text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Table
+                  </span>
+                  <p className="text-justify text-slate-800 dark:text-slate-200">
+                    The table displays sentence-level entity framing outputs
+                    generated by the transformer models. Users can review
+                    contextual examples, entities, framing classifications,
+                    source outlets, and publication dates associated with the
+                    dataset.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+          <DialogActions className="shrink-0 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <Button
+              onClick={() => setIsGuideOpen(false)}
+              className="text-slate-700 dark:text-slate-300"
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* PDF DIALOG */}
         <Dialog
