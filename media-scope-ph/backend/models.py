@@ -75,7 +75,7 @@ class Analysis(Base):
     # Unique fingerprint used for duplicate detection.
     # Generated from normalized sentence, entities,
     # and selected model.
-    fingerprint = Column(String(255), unique=True, index=True, nullable=False)
+    fingerprint = Column(String(500), unique=True, index=True, nullable=False)
 
     # Automatically generated timestamp for
     # analysis creation.
