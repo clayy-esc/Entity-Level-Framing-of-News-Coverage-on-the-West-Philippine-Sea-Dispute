@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import dataCollectionImg from "../assets/methodology-assets/data-collection.jpg";
-import modelingImg from "../assets/methodology-assets/modeling.jpg";
+import dataPreparationImg from "../assets/methodology-assets/data-preparation.png";
+import modelingImg from "../assets/methodology-assets/modeling.png";
 
 const Methodology = () => {
   const [openSections, setOpenSections] = useState({
@@ -121,16 +122,28 @@ const Methodology = () => {
           {openSections.section3 && (
             <div className="space-y-2 px-8 pb-8 text-justify">
               <p>
-                The dataset underwent a structured preprocessing pipeline, including text cleaning,
-                normalization, and sentence segmentation. Non-editorial elements such as advertisements
-                and navigation components were removed to retain only relevant textual content.
+                The dataset underwent a structured preprocessing pipeline,
+                including text cleaning, normalization, and sentence
+                segmentation. Non-editorial elements such as advertisements and
+                navigation components were removed to retain only relevant
+                textual content.
               </p>
               <p>
-                Relevant articles were identified through dataset filtering, followed by 
-                Named Entity Recognition (NER) to extract candidate entities. Each entity was 
-                manually reviewed and annotated with one of four framing labels based on its 
-                contextual portrayal within the sentence.
+                Relevant articles were identified through dataset filtering,
+                followed by Named Entity Recognition (NER) to extract candidate
+                entities. Each entity was manually reviewed and annotated with
+                one of four framing labels based on its contextual portrayal
+                within the sentence.
               </p>
+              <img
+                src={dataPreparationImg}
+                alt="Data Preparation Process"
+                className="mt-4 w-full rounded-md border border-slate-200 shadow-sm dark:border-slate-700"
+              />{" "}
+              <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+                Figure: Data Preparation Pipeline for Entity-Level Framing
+                Classification
+              </p>{" "}
             </div>
           )}
         </section>
