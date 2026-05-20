@@ -58,7 +58,8 @@ def on_startup():
 # - deployed Vercel frontend application
 origins = [
     "http://localhost:5173",
-    "https://entity-level-framing-of-news.vercel.app"
+    "https://entity-level-framing-of-news.vercel.app",
+    "https://media-scope-ph.vercel.app"
 ]
 
 # Remove invalid or empty origin values
